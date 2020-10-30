@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package iris.tg.api
 
 import iris.connection.Connection
@@ -17,16 +19,12 @@ import java.util.concurrent.CompletableFuture
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
 
-class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpResponse<String>>, CompletableFuture<HttpResponse<ByteArray>>>? = null) : Methods<CompletableFuture<JsonItem?>>(token) {
+class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpResponse<String>>, CompletableFuture<HttpResponse<ByteArray?>>>? = null) : Methods<CompletableFuture<JsonItem?>>(token) {
 
 	private val connection = connection?: kotlin.run {
 		ConnectionHttpClientFuture(HttpClient.newBuilder()
 			.connectTimeout(Duration.ofSeconds(15))
 			.build())
-	}
-
-	companion object {
-		private val emptyItem = CompletableFuture.completedFuture<JsonItem?>(null)
 	}
 
 	private val urlCache = HashMap<String, String>()
@@ -40,7 +38,7 @@ class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpRe
 
 		return connection.request(url).thenApply { t ->
 			JsonFlowParser.start(t.body())
-		}?: return emptyItem
+		}
 	}
 
 	override fun requestUpload(method: String, options: Options?, data: Map<String, Options>, token: String?): CompletableFuture<JsonItem?> {
@@ -52,7 +50,16 @@ class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpRe
 
 		return connection.requestUpload(url, data).thenApply { t ->
 			JsonFlowParser.start(t.body())
-		}?: return emptyItem
+		}
+	}
+
+	fun getFileBinary(fileId: String): CompletableFuture<ByteArray?>? {
+
+		return getFile(fileId).thenApply {res ->
+			if (res == null) return@thenApply null
+			val path = getPath(res["result"]["file_path"].asString())
+			connection.requestByteArray(path).get().body()
+		}
 	}
 
 	private fun encode(o: String): String? {
@@ -68,12 +75,6 @@ class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpRe
 	}
 
 
-	fun getFileBinary(fileId: String): CompletableFuture<ByteArray>? {
-		val res = getFile(fileId).get()?: return null
-		val path = getPath(res["result"]["file_path"].asString())
-		return connection.requestByteArray(path).thenApply {
-			it.body()
-		}
-	}
+
 }
 

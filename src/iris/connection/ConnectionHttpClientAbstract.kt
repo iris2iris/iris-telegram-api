@@ -118,24 +118,4 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 		byteArrays.add(("--$boundary--").toByteArray())
 		return HttpRequest.BodyPublishers.ofByteArrays(byteArrays)
 	}
-
-	companion object {
-		fun newClient(settings: Map<String, String>? = null): HttpClient {
-			val builder = HttpClient.newBuilder()
-					.version(HttpClient.Version.HTTP_1_1)
-					.followRedirects(HttpClient.Redirect.NEVER)
-			if (settings != null) {
-				builder.connectTimeout(Duration.ofSeconds(settings["connectTimeout"]?.toLong() ?: 5_000L))
-			}
-			return builder.build()
-		}
-
-		fun wrapData(data: String?): HttpRequest.BodyPublisher? {
-			return if (data == null) null else HttpRequest.BodyPublishers.ofString(data)
-		}
-
-		fun wrapData(data: ByteArray?): HttpRequest.BodyPublisher? {
-			return if (data == null) null else HttpRequest.BodyPublishers.ofByteArray(data)
-		}
-	}
 }

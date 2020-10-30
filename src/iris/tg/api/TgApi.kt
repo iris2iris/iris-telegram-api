@@ -10,23 +10,18 @@ import java.net.http.HttpClient
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 
 /**
  * @created 30.10.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
 
-class TgApi(token: String, connection: Connection<HttpResponse<String>, HttpResponse<ByteArray>>? = null) : Methods<JsonItem?>(token) {
+class TgApi(token: String, connection: Connection<HttpResponse<String>, HttpResponse<ByteArray?>>? = null) : Methods<JsonItem?>(token) {
 
 	private val connection = connection?: kotlin.run {
 		ConnectionHttpClientDefault(HttpClient.newBuilder()
 			.connectTimeout(Duration.ofSeconds(15))
 			.build())
-	}
-
-	companion object {
-		private val emptyItem = CompletableFuture.completedFuture<JsonItem?>(null)
 	}
 
 	private val urlCache = HashMap<String, String>()
