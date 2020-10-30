@@ -14,7 +14,7 @@
 
 ## Как это использовать
 
-### Простой VkApi
+### Простой TgApi
 
 ```kotlin
 val api = TgApi(token)
@@ -23,7 +23,7 @@ val res = api.sendMessage(toId, "💝 Это сообщение отправле
 println("Ответ: " + res?.obj())
 ```
 
-### VkApi методом Future
+### TgApi методом Future
 
 ```kotlin
 val api = TgApiFuture(token)
