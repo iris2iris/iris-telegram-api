@@ -1,9 +1,6 @@
 package iris.tg.api
 
-import iris.connection.Connection
-import iris.json.JsonItem
 import iris.util.Options
-import java.util.concurrent.CompletableFuture
 
 /**
  * @created 30.10.2020

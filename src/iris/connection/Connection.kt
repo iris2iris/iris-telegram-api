@@ -1,7 +1,6 @@
 package iris.connection
 
 import iris.util.Options
-import java.net.http.HttpClient
 
 /**
  * @created 07.09.2019
