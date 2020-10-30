@@ -1,6 +1,6 @@
 package iris.tg.test
 
-import iris.tg.api.TgApiFuture
+import iris.tg.api.TgApi
 
 /**
  * @created 30.10.2020
@@ -13,8 +13,8 @@ fun main() {
 	val toId = properties.getProperty("userTo.id").toLong()
 
 
-	val api = TgApiFuture(token)
+	val api = TgApi(token)
 	val res = api.sendMessage(toId, "💝 Это сообщение отправлено с помощью Kotlin")
 
-	println("Ответ: " + res.get()?.obj())
+	println("Ответ: " + res?.obj())
 }
