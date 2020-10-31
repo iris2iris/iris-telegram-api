@@ -8,7 +8,7 @@ import iris.tg.event.*
  * @created 26.09.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
-open class TgHandlerAdapter: TgEventHandler {
+open class TgEventHandlerAdapter: TgEventHandler {
 
 	open fun processMessage(message: Message) {}
 

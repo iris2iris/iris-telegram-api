@@ -2,9 +2,8 @@ package iris.tg.test
 
 import iris.tg.TgBotLongPoll
 import iris.tg.api.TgApiFuture
-import iris.tg.command.CommandMatcherRegex
-import iris.tg.command.CommandMatcherSimple
 import iris.tg.command.TgCommandHandler
+import iris.tg.command.commands
 import kotlin.system.exitProcess
 
 /**
@@ -22,23 +21,27 @@ fun main() {
 	// Определяем обработчик команд
 	val commandsHandler = TgCommandHandler()
 
-	commandsHandler += CommandMatcherSimple("пинг") {
-		api.sendMessage(it.peerId, "ПОНГ!")
+	// Конфигурирование команд в стиле DSL
+	commandsHandler += commands {
+		"пинг" to {
+			api.sendMessage(it.peerId, "ПОНГ!")
+		}
+
+		"мой ид" to {
+			api.sendMessage(it.peerId, "Ваш ID равен: ${it.fromId}")
+		}
+
+		regex("""рандом (\d+) (\d+)""") to { vkMessage, params ->
+
+			var first = params[1].toInt()
+			var second = params[2].toInt()
+			if (second < first)
+				first = second.also { second = first }
+
+			api.sendMessage(vkMessage.peerId, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
+		}
 	}
 
-	commandsHandler += CommandMatcherSimple("мой ид") {
-		api.sendMessage(it.peerId, "Ваш ID равен: ${it.fromId}")
-	}
-
-	commandsHandler += CommandMatcherRegex("рандом (\\d+) (\\d+)") { vkMessage, params ->
-
-		var first = params[1].toInt()
-		var second = params[2].toInt()
-		if (second < first)
-			first = second.also { second = first }
-
-		api.sendMessage(vkMessage.peerId, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
-	}
 
 	// Передаём в параметрах слушателя событий токен и созданный обработчик команд
 	val listener = TgBotLongPoll(token, commandsHandler)

@@ -1,7 +1,7 @@
 package iris.tg.test
 
 import iris.tg.TgBotLongPoll
-import iris.tg.TgHandlerAdapter
+import iris.tg.TgEventHandlerAdapter
 import iris.tg.api.TgApiFuture
 import iris.tg.event.CallbackEvent
 import iris.tg.event.Message
@@ -21,7 +21,7 @@ fun main() {
 	val api = TgApiFuture(token)
 
 	// Определяем обработчик событий
-	val simpleMessageHandler = object : TgHandlerAdapter() {
+	val simpleMessageHandler = object : TgEventHandlerAdapter() {
 
 		override fun processMessage(message: Message) {
 			val text = message.text

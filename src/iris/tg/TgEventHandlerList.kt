@@ -6,7 +6,7 @@ import iris.tg.event.*
  * @created 08.02.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
-class VkHandlerList(val list: List<TgEventHandler>) : TgEventHandler {
+class TgEventHandlerList(val list: List<TgEventHandler>) : TgEventHandler {
 
 	operator fun plusAssign(handler: TgEventHandler) {
 		add(handler)

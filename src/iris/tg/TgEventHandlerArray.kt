@@ -6,7 +6,7 @@ import iris.tg.event.*
  * @created 22.03.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
-class TgHandlerArray(val list: Array<TgEventHandler>) : TgEventHandler {
+class TgEventHandlerArray(val list: Array<TgEventHandler>) : TgEventHandler {
 
 	override fun processMessages(messages: List<Message>) {
 		for (l in list) {
