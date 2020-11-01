@@ -1,6 +1,7 @@
 package iris.tg.command
 
 import iris.tg.TgEventHandlerAdapter
+import iris.tg.TgTriggerEventHandler
 import iris.tg.event.Message
 
 /**
@@ -11,9 +12,14 @@ import iris.tg.event.Message
 open class TgCommandHandler(
 	private val commandBuilder: CommandExtractor = CommandExtractorDefault(null),
 	private val searchFirst: Boolean = true
-) : TgEventHandlerAdapter() {
+) : TgEventHandlerAdapter(), TgTriggerEventHandler.TriggerMessage {
 
 	private val map = mutableMapOf<Char, MutableList<CommandMatcher>>()
+
+	constructor(commandBuilder: CommandExtractor = CommandExtractorDefault(null),
+				searchFirst: Boolean = true, commands: Iterable<CommandMatcherWithHash>) : this(commandBuilder, searchFirst) {
+		addAllWithHash(commands)
+	}
 
 	operator fun plusAssign(command: CommandMatcher) {
 		add(command, null)
@@ -25,6 +31,10 @@ open class TgCommandHandler(
 
 	operator fun plusAssign(command: Pair<String, CommandMatcher>) {
 		add(command.second, command.first.toCharArray())
+	}
+
+	operator fun plusAssign(commands: Iterable<Pair<CommandMatcher, CharArray?>>) {
+		addAll(commands)
 	}
 
 	open fun add(command: CommandMatcher): TgCommandHandler {
@@ -44,12 +54,9 @@ open class TgCommandHandler(
 		return this
 	}
 
-	fun addAll(commands: Iterable<Pair<CommandMatcher, CharArray?>>) {
+	fun addAll(commands: Iterable<Pair<CommandMatcher, CharArray?>>): TgCommandHandler {
 		for (it in commands) add(it.first, it.second)
-	}
-
-	operator fun plusAssign(commands: Iterable<Pair<CommandMatcher, CharArray?>>) {
-		addAll(commands)
+		return this
 	}
 
 	companion object {
@@ -76,6 +83,8 @@ open class TgCommandHandler(
 		}
 	}
 
+	override fun process(messages: List<Message>) = processMessages(messages)
+
 	fun addCommands(vararg commands: CommandMatcher) {
 		for (it in commands)
 			when (it) {
@@ -84,8 +93,14 @@ open class TgCommandHandler(
 			}
 	}
 
-	fun addCommands(vararg commands: CommandMatcherWithHash) {
+	fun addCommands(vararg commands: CommandMatcherWithHash): TgCommandHandler {
 		for (it in commands)
 			add(it)
+		return this
+	}
+
+	fun addAllWithHash(commands: Iterable<CommandMatcherWithHash>): TgCommandHandler {
+		for (it in commands) add(it, it.hashChars())
+		return this
 	}
 }
