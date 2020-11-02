@@ -66,20 +66,19 @@ open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: Tg
 		}
 	}
 
-	private lateinit var thread: Thread
+	private var thread: Thread? = null
 
 	open fun startPolling() {
 		thread = Thread(this)
-		thread.start()
+		thread!!.start()
 	}
 
 	open fun join() {
-		if (!this::thread.isInitialized)
-			return
-		thread.join()
+		thread?.join()
 	}
 
 	fun stop() {
 		isWorking = false
+		thread?.interrupt()
 	}
 }
