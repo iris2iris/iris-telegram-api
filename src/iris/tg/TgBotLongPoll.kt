@@ -8,7 +8,7 @@ import java.util.logging.Logger
  * @created 30.10.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
-open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: TgUpdateProcessor) {
+open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: TgUpdateProcessor) : Runnable {
 
 	constructor(token: String, handler: TgEventHandler) : this(TgApi(token), TgUpdateProcessorDefault(handler))
 
@@ -18,7 +18,7 @@ open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: Tg
 
 	var isWorking = true
 
-	fun run() {
+	override fun run() {
 		isWorking = true
 		var offset = -1L
 		var updates = api.getUpdates(offset, 10)
@@ -38,7 +38,8 @@ open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: Tg
 		val items = (updates["result"] as JsonArray)
 
 		offset = if (items.isNotEmpty()) items.getList().last()["update_id"].asLong() + 1 else -1L
-		while (isWorking)  {
+		val thisThread = Thread.currentThread()
+		while (!thisThread.isInterrupted && isWorking)  {
 			updates = api.getUpdates(offset, 10)
 			if (updates == null) {
 				Thread.sleep(3 * 1000L)
@@ -63,6 +64,19 @@ open class TgBotLongPoll(private val api: TgApi, private val updateProcessor: Tg
 			offset = items.last()["update_id"].asLong() + 1
 			updateProcessor.processUpdates(items)
 		}
+	}
+
+	private lateinit var thread: Thread
+
+	open fun startPolling() {
+		thread = Thread(this)
+		thread.start()
+	}
+
+	open fun join() {
+		if (!this::thread.isInitialized)
+			return
+		thread.join()
 	}
 
 	fun stop() {

@@ -68,7 +68,9 @@ val simpleMessageHandler = object : TgEventHandlerAdapter() {
 
 // Передаём в параметрах слушателя событий токен и созданный обработчик событий
 val listener = TgBotLongPoll(token, simpleMessageHandler)
-listener.run() // блокирует дальнейшее продвижение, пока не будет остановлено
+listener.startPolling() // Можно запустить неблокирующего слушателя
+listener.join() // Даст дождаться завершения работы слушателя
+//listener.run() // Можно заблокировать дальнейшую работу потока, пока не будет остановлено
 ```
 
 ### TgCommandHandler
