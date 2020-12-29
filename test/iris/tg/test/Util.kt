@@ -19,6 +19,7 @@ object TestUtil {
 	}
 
 	fun init() {
+		TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"))
 		//initLogger()
 	}
 

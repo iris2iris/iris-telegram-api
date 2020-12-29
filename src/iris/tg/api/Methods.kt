@@ -8,7 +8,7 @@ import iris.util.Options
  */
 abstract class Methods<SingleType>(protected val token: String) {
     
-    abstract fun request(method: String, options: Options?, token: String?): SingleType
+    abstract fun request(method: String, options: Options?, token: String? = this.token): SingleType
 
 	abstract fun requestUpload(method: String, options: Options?, data: Map<String, Options>, token: String?): SingleType
     

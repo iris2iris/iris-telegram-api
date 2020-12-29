@@ -221,4 +221,7 @@ val triggerHandler = TgTriggerEventHandler {
 
 **[Iris Telegram API](https://github.com/iris2iris/iris-telegram-api)** использует библиотеку **[Iris JSON Parser](https://github.com/iris2iris/iris-json-parser-kotlin)** для обработки ответов от сервера Telegram. Загляните ознакомиться =)
 
-#### Не забывайте поставить звёзды, если этот инструмент оказался вам полезен ⭐
+### Благодарности
+Спасибо @markelovstyle за код-ревью, замечания и предложения
+
+⭐ **Не забывайте поставить звёзды, если этот инструмент оказался вам полезен**
