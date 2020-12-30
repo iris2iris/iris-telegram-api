@@ -3,7 +3,7 @@ package iris.tg.test
 import iris.tg.TgEventHandlerAdapter
 import iris.tg.api.TgApi
 import iris.tg.webhook.GroupbotSource
-import iris.tg.webhook.TgWebhookGroupBuilder
+import iris.tg.webhook.TgWebhookBotBuilder
 import iris.tg.event.Message
 import iris.util.Options
 import kotlin.system.exitProcess
@@ -37,7 +37,7 @@ fun main() {
 		}
 	}
 
-	val gb = TgWebhookGroupBuilder.build {
+	val gb = TgWebhookBotBuilder.build {
 		groupbot = GroupbotSource.Groupbot(groupId)
 		path = "/telegram"
 		eventHandler = handler

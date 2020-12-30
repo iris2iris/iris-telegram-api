@@ -14,17 +14,17 @@ class TgWebhookRequestHandlerDefault(
 	private var eventConsumer: TgWebhookEventConsumer,
 	private val addressTester: AddressTester? = AddressTesterDefault(),
 	expireEventTime: Long = 25_000L,
-	vkTimeVsLocalTimeDiff: Long = 0L
+	tgTimeVsLocalTimeDiff: Long = 0L
 ) : TgWebhookRequestHandler {
 
-	private val expireEventTime = expireEventTime - vkTimeVsLocalTimeDiff
+	private val expireEventTime = if (expireEventTime == 0L) 0L else expireEventTime - tgTimeVsLocalTimeDiff
 	private var expired = 0
 	private val exp = Any()
 
 	companion object {
 		var loggingExpired = true
 
-		private val logger = Logger.getLogger("iris.vk")
+		private val logger = Logger.getLogger("iris.tg")
 	}
 
 	private inline fun ok(request: Request) {
@@ -76,11 +76,14 @@ class TgWebhookRequestHandlerDefault(
 
 
 			val obj = event
-			val testDate = obj["message"]["date"].asLongOrNull()
-			val suitsTime = if (testDate != null) {
-				val date = testDate
-				val curTime = System.currentTimeMillis()
-				date * 1000 > curTime - expireEventTime
+			val suitsTime = if (expireEventTime != 0L) {
+				val testDate = obj["message"]["date"].asLongOrNull()
+				if (testDate != null) {
+					val date = testDate
+					val curTime = System.currentTimeMillis()
+					date * 1000 > curTime - expireEventTime
+				} else
+					true
 			} else
 				true
 

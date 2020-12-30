@@ -14,7 +14,7 @@ class TgWebhookReadWriteBufferDefault(queueSize: Int) : TgWebhookReadWriteBuffer
 	private val queueWait = Object()
 
 	companion object {
-		private val logger = Logger.getLogger("iris.vk")
+		private val logger = Logger.getLogger("iris.tg")
 	}
 
 	override fun send(event: JsonItem) {

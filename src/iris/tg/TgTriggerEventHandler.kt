@@ -105,10 +105,8 @@ class TgTriggerEventHandler() : TgEventHandler {
 		callbacks!! += trigger
 	}
 
-	//fun onMessage(processor: (messages: List<Message>) -> Unit) = plusAssign(TriggerMessageLambda(processor))
 	fun onMessage(processor: (messages: List<Message>) -> Unit) = plusAssign(TriggerMessageLambda(processor))
 	fun onMessage(trigger: TriggerMessage) = plusAssign(trigger)
-	//fun onMessage(block: VkEventHandlerTrigger.() -> TriggerMessage) = plusAssign(block())
 	fun onMessageEdit(processor: (messages: List<Message>) -> Unit) = plusAssign(TriggerMessageEditLambda(processor))
 	fun onInvite(processor: (messages: List<ChatEvent>) -> Unit) = plusAssign(TriggerInviteLambda(processor))
 	fun onLeave(processor: (messages: List<ChatEvent>) -> Unit) = plusAssign(TriggerLeaveLambda(processor))

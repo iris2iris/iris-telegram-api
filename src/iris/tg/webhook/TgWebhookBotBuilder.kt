@@ -9,14 +9,14 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 /**
- * Главный класс для VK Callback API. Создаёт сервер TgWebhookBot из переданных настроек, готовый к запуску
+ * Главный класс для создания Webhook сервера. Создаёт сервер TgWebhookBot из переданных настроек, готовый к запуску
  *
  * @created 26.12.2020
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
 
 @Suppress("MemberVisibilityCanBePrivate")
-class TgWebhookGroupBuilder {
+class TgWebhookBotBuilder {
 	var server: TgWebhookRequestServer? = null
 	var groupbotSource: GroupbotSource? = null
 	var groupbot: GroupbotSource.Groupbot? = null
@@ -32,8 +32,8 @@ class TgWebhookGroupBuilder {
 	var tgTimeVsLocalTimeDiff: Long = 0L
 
 	companion object {
-		fun build(initializer: TgWebhookGroupBuilder.() -> Unit): TgWebhookBot {
-			return TgWebhookGroupBuilder().apply(initializer).buildGroupCallback()
+		fun build(initializer: TgWebhookBotBuilder.() -> Unit): TgWebhookBot {
+			return TgWebhookBotBuilder().apply(initializer).buildGroupCallback()
 		}
 	}
 
