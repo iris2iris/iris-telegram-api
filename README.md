@@ -17,16 +17,16 @@
 ### Простой TgApi
 
 ```kotlin
-val api = TgApi(token)
+val api = tgApi(token)
 val res = api.sendMessage(toId, "💝 Это сообщение отправлено с помощью Kotlin")
 
-println("Ответ: " + res?.obj())
+println("Ответ: $res")
 ```
 
 ### TgApi методом Future
 
 ```kotlin
-val api = TgApiFuture(token)
+val api = tgApiFuture(token)
 
 println("Запускаем работу асинхронных запросов\n")
 
@@ -36,38 +36,45 @@ println("Первый запрос без задержек")
 val res2 = api.sendMessage(toId, "💝 Второе сообщение отправлено с помощью Kotlin")
 println("Второй запрос без задержек\n")
 
-println("Теперь ждём ответ 1: " + res.get()?.obj())
-println("Теперь ждём ответ 2: " + res2.get()?.obj())
+println("Теперь ждём ответ 1: " + res.get())
+println("Теперь ждём ответ 2: " + res2.get())
 ```
 
 ### TgBotLongPoll — слушатель событий методом Long Poll
 ```kotlin
-val api = TgApiFuture(token)
+val api = tgApiFuture(token)
 
 // Определяем обработчик событий
-val simpleMessageHandler = object : TgEventHandlerAdapter() {
+val simpleMessageHandler = object : TgEventMessageSingleHandlerAdapterBasicTypes() {
 
-    override fun processMessage(message: Message) {
-        val text = message.text
-        println("Получено сообщение: $text")
+	override fun text(message: Message) {
 
-        if (text =="пинг") {
-            println("Команда пинг получена")
+		api.sendMessage(message.chat.id,
+			message.text?.let { "Получено сообщение: $it" }
+				?: message.sticker?.let { "Получен стикер: $it" }
+				?: message.video?.let { "Получено видео: $it" }
+				?: message.audio?.let { "Получено аудио: $it" }
+				?: message.animation?.let { "Получен GIF: $it" }
+				?: message.photo?.let { "Получено фото: $it" }
+				?: "Получено сообщение: $message"
+		)
 
-            // Шлём ответ
-            api.sendMessage(message.peerId, "ПОНГ")
-        }
-    }
+		val text = message.text
+		if (text =="пинг") {
+			println("Команда Пинг получена")
 
-    override fun processCallbacks(callbacks: List<CallbackEvent>) {
-        for (callback in callbacks) {
-            println("Получено callback-событие: ${callback.id} payload=${callback.data}")
-        }
-    }
+			// Шлём ответ
+			api.sendMessage(message.chat.id, "ПОНГ")
+		}
+	}
+
+	override fun callbackQuery(callback: CallbackQuery) {
+		println("Получено callback-событие: ${callback.id} data=${callback.data}")
+	}
 }
 
 // Передаём в параметрах слушателя событий токен и созданный обработчик событий
-val listener = TgBotLongPoll(token, simpleMessageHandler)
+val listener = TgLongPoll(tgApi(token), simpleMessageHandler)
 listener.startPolling() // Можно запустить неблокирующего слушателя
 listener.join() // Даст дождаться завершения работы слушателя
 //listener.run() // Можно заблокировать дальнейшую работу потока, пока не будет остановлено
@@ -78,33 +85,48 @@ listener.join() // Даст дождаться завершения работы
 Возможность добавлять обработчики каждой текстовой команды отдельным обработчиком
 
 ```kotlin
-// Создаём класс для отправки сообщений
-val api = TgApiFuture(token)
+val commandsHandler = TgCommandPackHandler<Message>()
+// Конфигурирование команд в стиле DSL
+commandsHandler.commands {
 
-// Определяем обработчик команд
-val commandsHandler = TgCommandHandler()
+	// пример набора синонимом для команды
+	text("пинг", "кинг") {
+		api.sendMessage(it.chat.id,
+			when(it.text!!) {
+				"пинг" -> "ПОНГ!"
+				"кинг" -> "КОНГ!"
+				else -> "Как я здесь очутился???"
+			}
+		)
+	}
 
-commandsHandler += CommandMatcherSimple("пинг") {
-    api.sendMessage(it.peerId, "ПОНГ!")
+	// выдача информации по пользователю
+	text("мой ид", "/me") {
+		val from = it.from!!
+		api.sendMessage(it.chat.id, "ID ${from.firstName} ${from.lastName} (@${from.username}) равен: ${from.id}")
+	}
+
+	// команды с регулярным выражениями
+	regex("""рандом (\d+) (\d+)""") { message, params ->
+		var first = params[1].toInt()
+		var second = params[2].toInt()
+		if (second < first)
+			first = second.also { second = first }
+
+		api.sendMessage(message.chat.id, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
+	}
+
+	// возможность прикрепить готовую функцию с подходящей сигнатурой (message: Message) -> Unit
+	text(listOf("как дела?", "привет, как дела?"), ::answerHowAreYou)
+
+	// возможность прикрепить готовый класс типа Command
+	text(listOf("кто ты?", "кто ты"), AnswerWhoAreYou())
+
+	regex("""кто я\??""", "(?:мой )?профиль") { message, params ->
+		val from = message.from!!
+		api.sendMessage(message.chat.id, "Вы ${from.firstName} ${from.lastName} [@${from.username}]. ID = ${from.id}")
+	}
 }
-
-commandsHandler += CommandMatcherSimple("мой ид") {
-    api.sendMessage(it.peerId, "Ваш ID равен: ${it.fromId}")
-}
-
-commandsHandler += CommandMatcherRegex("рандом (\\d+) (\\d+)") { vkMessage, params ->
-
-    var first = params[1].toInt()
-    var second = params[2].toInt()
-    if (second < first)
-        first = second.also { second = first }
-
-    api.sendMessage(vkMessage.peerId, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
-}
-
-// Передаём в параметрах слушателя событий токен и созданный обработчик команд
-val listener = TgBotLongPoll(token, commandsHandler)
-listener.run()
 ```
 ##### Настройка карты команд с помощью DSL
 
@@ -133,85 +155,36 @@ commandsHandler += commands {
 ### Обработки событий методом onXxx
 
 ```kotlin
-// Создаём класс для отправки сообщений
-val api = TgApiFuture(token)
-
 // Определяем обработчик триггеров
-val triggerHandler = TgTriggerEventHandler()
+val triggerHandler = TgEventTriggerHandler<Message> {
 
-// можно настраивать лямбдами
-triggerHandler.onMessage {
-    for (message in it)
-        println("Получено сообщение от ${message.peerId}: ${message.text}")
-}
+	onMessage {
+		println("Получено сообщение от ${it.chat.id}: ${it.text}")
+	}
 
-triggerHandler.onMessageEdit {
-    for (message in it)
-        println("Сообщение исправлено ${message.id}: ${message.text}")
-}
+	onMessageEdit {
+		println("Сообщение исправлено ${it.messageId}: ${it.text}")
+	}
 
-// можно настраивать классами триггеров
-triggerHandler += TgCommandHandler(
-    commands = listOf(
-        CommandMatcherSimple("пинг") {
-            api.sendMessage(it.peerId, "ПОНГ!")
-        },
+	onMessage(
+		TgCommandPackHandler {
+			text("пинг") {
+				api.sendMessage(it.chat.id, "ПОНГ!")
+			}
+			text("мой ид") {
+				api.sendMessage(it.chat.id, "Ваш ID равен: ${it.from!!.id}")
+			}
+			regex("""рандом (\d+) (\d+)""") { message, params ->
 
-        CommandMatcherSimple("мой ид") {
-            api.sendMessage(it.peerId, "Ваш ID равен: ${it.fromId}")
-        },
+				var first = params[1].toInt()
+				var second = params[2].toInt()
+				if (second < first)
+					first = second.also { second = first }
 
-        CommandMatcherRegex("""рандом (\d+) (\d+)""") { vkMessage, params ->
-
-            var first = params[1].toInt()
-            var second = params[2].toInt()
-            if (second < first)
-                first = second.also { second = first }
-
-            api.sendMessage(vkMessage.peerId, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
-        }
-    )
-)
-
-// Передаём в параметрах слушателя событий токен и созданный обработчик команд
-val listener = TgBotLongPoll(token, triggerHandler)
-listener.run()
-```
-
-##### Настройка карты событий с помощью DSL
-```kotlin
-val triggerHandler = TgTriggerEventHandler {
-
-    onMessage {
-        for (message in it)
-            println("Получено сообщение от ${message.peerId}: ${message.text}")
-    }
-
-    onMessageEdit {
-        for (message in it)
-            println("Сообщение исправлено ${message.id}: ${message.text}")
-    }
-
-    onMessage(
-        TgCommandHandler().addAll(
-            commands {
-                "пинг" runs {
-                    api.sendMessage(it.peerId, "ПОНГ!")
-                }
-                "мой ид" runs {
-                    api.sendMessage(it.peerId, "Ваш ID равен: ${it.fromId}")
-                }
-                regex("""рандом (\d+) (\d+)""") runs { vkMessage, params ->
-
-                    var first = params[1].toInt()
-                    var second = params[2].toInt()
-                    if (second < first)
-                        first = second.also { second = first }
-
-                    api.sendMessage(vkMessage.peerId, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
-                }
-            }
-    ))
+				api.sendMessage(message.chat.id, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
+			}
+		}
+	)
 }
 ```
 
