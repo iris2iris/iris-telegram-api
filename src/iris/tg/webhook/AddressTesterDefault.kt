@@ -12,12 +12,14 @@ import java.net.InetAddress
  * @param realIpHeader Если указан, извлекает информацию из заголовка запроса с указанным в `realIpHeader` названием.
  * Например, `X-Real-IP`, `CF-Connecting-IP` и подобные
  * @created 29.09.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
 class AddressTesterDefault(
 	ipSubnets: Array<String> = arrayOf("149.154.160.0/20", "91.108.4.0/22"),
 	private val realIpHeader: String? = null
 ) : AddressTester {
+
+	constructor(ipSubnet: String, realIpHeader: String? = null): this(arrayOf(ipSubnet), realIpHeader)
 
 	private val ipSubnets = ipSubnets.map { Subnet.getInstance(it) }
 
@@ -26,15 +28,12 @@ class AddressTesterDefault(
 	}
 
 	override fun isGoodHost(request: Request): Boolean {
-		val address = (if (realIpHeader == null) {
-			request.remoteAddress.address
-		} else { // нужно вытащить реальный IP адрес
-			val host = getRealHostInternal(request)
-			if (host == null)
+		val host = getRealHostInternal(request)
+		val address = (if (host == null)
 				request.remoteAddress.address
 			else
 				InetAddress.getByName(host)
-		}).address.let { BigInteger(it) }
+		).address.let { BigInteger(it) }
 
 		return ipSubnets.any { it.isInNet(address) }
 	}

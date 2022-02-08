@@ -1,21 +1,57 @@
 package iris.tg.webhook
 
-import iris.json.JsonItem
-import iris.json.flow.JsonFlowParser
+import iris.tg.TgUpdateWriter
+import iris.tg.api.ResponseHandler
+import iris.tg.api.items.Update
+import iris.tg.api.items.UpdateExt
+import iris.tg.processors.TgUpdateMultibotProcessor
+import iris.tg.processors.TgUpdateMultibotProcessorToUpdateProcessor
+import iris.tg.processors.TgUpdateProcessor
 import iris.tg.webhook.TgWebhookRequestHandler.Request
 import java.util.logging.Logger
 
 /**
  * @created 26.12.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
 class TgWebhookRequestHandlerDefault(
-	private val gbSource: GroupbotSource,
-	private var eventConsumer: TgWebhookEventConsumer,
+	private val updateProcessor: TgUpdateMultibotProcessor<Update>,
+	private val responseHandler: ResponseHandler<Update?>,
 	private val addressTester: AddressTester? = AddressTesterDefault(),
+	private val botSource: BotSource? = null,
 	expireEventTime: Long = 25_000L,
-	tgTimeVsLocalTimeDiff: Long = 0L
+	tgTimeVsLocalTimeDiff: Long = 0L,
 ) : TgWebhookRequestHandler {
+
+
+	constructor(
+		updateWriter: TgUpdateWriter<UpdateExt>,
+		responseHandler: ResponseHandler<Update?>,
+		addressTester: AddressTester? = AddressTesterDefault(),
+		botSource: BotSource? = null,
+		expireEventTime: Long = 25_000L,
+		tgTimeVsLocalTimeDiff: Long = 0L,
+	) : this(Writer2MultibotProcessor(updateWriter), responseHandler, addressTester, botSource, expireEventTime, tgTimeVsLocalTimeDiff)
+
+	constructor(
+		updateProcessor: TgUpdateProcessor<Update>,
+		responseHandler: ResponseHandler<Update?>,
+		addressTester: AddressTester? = AddressTesterDefault(),
+		botSource: BotSource? = null,
+		expireEventTime: Long = 25_000L,
+		tgTimeVsLocalTimeDiff: Long = 0L,
+	) : this(TgUpdateMultibotProcessorToUpdateProcessor(updateProcessor), responseHandler, addressTester, botSource, expireEventTime, tgTimeVsLocalTimeDiff)
+
+	private class Writer2MultibotProcessor(private val updateWriter: TgUpdateWriter<UpdateExt>) :
+		TgUpdateMultibotProcessor<Update> {
+		override fun processUpdates(fromBot: BotSource.BotData, updates: List<Update>) {
+			TODO("Not yet implemented")
+		}
+
+		override fun processUpdate(fromBot: BotSource.BotData, update: Update) {
+			updateWriter.write(UpdateExt(update, fromBot))
+		}
+	}
 
 	private val expireEventTime = if (expireEventTime == 0L) 0L else expireEventTime - tgTimeVsLocalTimeDiff
 	private var expired = 0
@@ -28,7 +64,7 @@ class TgWebhookRequestHandlerDefault(
 	}
 
 	private inline fun ok(request: Request) {
-		request.writeResponse("ok", 200)
+		request.writeResponse("", 200)
 	}
 
 	override fun handle(request: Request) {
@@ -36,19 +72,22 @@ class TgWebhookRequestHandlerDefault(
 
 		if (addressTester != null) {
 			if (!addressTester.isGoodHost(request)) {
-				logger.info { "Unknown host trying to send Callback API event: " + addressTester.getRealHost(request) }
+				logger.info { "Unknown host trying to send Webhook event: " + addressTester.getRealHost(request) }
 				ok(request)
 				return
 			}
 		}
 
-		var groupbot = gbSource.getGroupbot(request)
-		if (groupbot == null) {
-			logger.info { "Groupbot not found. " + request.requestUri }
-			ok(request)
-			return
-		}
-
+		val bot = if (botSource != null) {
+			val bot = botSource.getBot(request)
+			if (bot == null) {
+				logger.info { "BotData not found. " + request.requestUri }
+				ok(request)
+				return
+			}
+			bot
+		} else
+			null
 
 		val body = request.body()
 
@@ -59,25 +98,12 @@ class TgWebhookRequestHandlerDefault(
 				return
 			}
 
-			val event: JsonItem = JsonFlowParser.start(body)
-
-			//val groupId = groupbot.id
-
-			/*val type = event["type"].asString()
-			if (type == "confirmation") {
-				val res = groupbot.confirmation
-				logger.finest {"Test confirmation. Group ID: $groupId" }
-				request.writeResponse(res, 200)
-				return
-			}*/
-
+			val event = responseHandler.process("getUpdates", body)
 			ok(request)
-			val eventWriter = eventConsumer
+			if (event == null) return
 
-
-			val obj = event
 			val suitsTime = if (expireEventTime != 0L) {
-				val testDate = obj["message"]["date"].asLongOrNull()
+				val testDate = event.message?.date
 				if (testDate != null) {
 					val date = testDate
 					val curTime = System.currentTimeMillis()
@@ -89,7 +115,7 @@ class TgWebhookRequestHandlerDefault(
 
 			if (suitsTime) {
 				// отправляем событие
-				eventWriter.send(event)
+				updateProcessor.processUpdate(bot ?: BotSource.BotData.zero, event)
 
 				if (loggingExpired) {
 					synchronized(exp) {

@@ -1,6 +1,7 @@
 package iris.tg.command
 
-import iris.tg.event.Message
+import iris.tg.api.items.Message
+
 
 open class CommandMatcherSimple(private val commandTemplate: String, private val runCommand: Command) : CommandMatcherWithHash {
 

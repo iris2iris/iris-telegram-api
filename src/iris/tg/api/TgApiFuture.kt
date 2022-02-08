@@ -1,80 +1,29 @@
-@file:Suppress("unused")
-
 package iris.tg.api
 
-import iris.connection.Connection
-import iris.connection.ConnectionHttpClientFuture
-import iris.json.JsonItem
-import iris.json.flow.JsonFlowParser
-import iris.util.Options
-import java.net.URLEncoder
+import iris.tg.connection.Connection
+import iris.tg.connection.ConnectionHttpClientFuture
 import java.net.http.HttpClient
-import java.net.http.HttpResponse
-import java.nio.charset.StandardCharsets
-import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 /**
- * @created 30.10.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @created 25.01.2022
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
+open class TgApiFuture<T>(token: String,
+					 private val responseHandler: ResponseHandler<out T>,
+					 apiPath: String? = null,
+					 connection: Connection<CompletableFuture<String>, CompletableFuture<ByteArray?>>? = null
+) : TgApiAbstract<CompletableFuture<out T>>(token, apiPath) {
 
-class TgApiFuture(token: String, connection: Connection<CompletableFuture<HttpResponse<String>>, CompletableFuture<HttpResponse<ByteArray?>>>? = null) : Methods<CompletableFuture<JsonItem?>>(token) {
+	private val connection = connection ?: ConnectionHttpClientFuture(HttpClient.newHttpClient())
 
-	private val connection = connection?: kotlin.run {
-		ConnectionHttpClientFuture(HttpClient.newBuilder()
-			.connectTimeout(Duration.ofSeconds(15))
-			.build())
+	override fun requestImpl(url: String, method: String, options: Options?): CompletableFuture<T> {
+		return connection.request(url, options)
+			.thenApply {responseHandler.process(method, it) }
 	}
 
-	private val urlCache = HashMap<String, String>()
-
-	override fun request(method: String, options: Options?, token: String?): CompletableFuture<JsonItem?> {
-		val sb = StringBuilder()
-		if (options != null)
-			encodeOptions(options, sb)
-		val url = if (token == null) (urlCache.getOrPut(method) { "https://api.telegram.org/bot${this.token}/$method?" }) + sb
-		else "https://api.telegram.org/bot$token/$method?$sb"
-
-		return connection.request(url).thenApply { t ->
-			JsonFlowParser.start(t.body())
-		}
+	override fun requestUploadImpl(url: String, method: String, files: Map<String, Connection.BinaryData>, options: Options?): CompletableFuture<T> {
+		return connection.requestUpload(url, files, options)
+			.thenApply {responseHandler.process(method, it) }
 	}
-
-	override fun requestUpload(method: String, options: Options?, data: Map<String, Options>, token: String?): CompletableFuture<JsonItem?> {
-		val sb = StringBuilder()
-		if (options != null)
-			encodeOptions(options, sb)
-		val url = if (token == null) (urlCache.getOrPut(method) { "https://api.telegram.org/bot${this.token}/$method?" }) + sb
-		else "https://api.telegram.org/bot$token/$method?$sb"
-
-		return connection.requestUpload(url, data).thenApply { t ->
-			JsonFlowParser.start(t.body())
-		}
-	}
-
-	fun getFileBinary(fileId: String): CompletableFuture<ByteArray?>? {
-
-		return getFile(fileId).thenApply {res ->
-			if (res == null) return@thenApply null
-			val path = getPath(res["result"]["file_path"].asString())
-			connection.requestByteArray(path).get().body()
-		}
-	}
-
-	private fun encode(o: String): String? {
-		return URLEncoder.encode(o, StandardCharsets.UTF_8)
-	}
-
-	private fun encodeOptions(obj: Options, sb: StringBuilder = StringBuilder()): StringBuilder {
-		for (o in obj.entries) {
-			sb.append(encode(o.key)).append('=')
-				.append(encode(o.value.toString())).append("&")
-		}
-		return sb
-	}
-
-
-
 }
-

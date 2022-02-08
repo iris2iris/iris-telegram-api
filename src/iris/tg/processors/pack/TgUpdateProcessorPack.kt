@@ -1,0 +1,112 @@
+package iris.tg.processors.pack
+
+import iris.tg.api.items.*
+import iris.tg.processors.TgUpdateProcessor
+import java.util.*
+
+/**
+ * @created 31.10.2020
+ * @author [Ivan Ivanov](https://t.me/irisism)
+ *
+ * Threadsafe
+ */
+open class TgUpdateProcessorPack(private val handler: TgEventPackHandlerBasicTypes) : TgUpdateProcessor<Update> {
+
+	override fun processUpdates(updates: List<Update>) {
+
+		var messages: MutableList<Message>? = null
+		var editedMessages: MutableList<Message>? = null
+		var channelPosts: MutableList<Message>? = null
+		var editedChannelPosts: MutableList<Message>? = null
+		var inlineQueries: MutableList<InlineQuery>? = null
+		var chosenInlineResults: MutableList<ChosenInlineResult>? = null
+		var callbackQueries: MutableList<CallbackQuery>? = null
+		var shippingQueries: MutableList<ShippingQuery>? = null
+		var preCheckoutQueries: MutableList<PreCheckoutQuery>? = null
+		var polls: MutableList<Poll>? = null
+		var pollAnswers: MutableList<PollAnswer>? = null
+		var myChatMembers: MutableList<ChatMemberUpdated>? = null
+		var chatMembers: MutableList<ChatMemberUpdated>? = null
+		var chatJoinRequests: MutableList<ChatJoinRequest>? = null
+		
+		for (upd in updates) {
+			upd.message?.also {
+				(messages ?: list<Message>().also { messages = it }) += it
+			}
+			?: upd.editedMessage?.also {
+				(editedMessages ?: list<Message>().also { editedMessages = it }) += it
+			}
+			?: upd.chatMember?.also {
+				(chatMembers ?: list<ChatMemberUpdated>().also { chatMembers = it }) += it
+			}
+			?: upd.callbackQuery?.also {
+				(callbackQueries ?: list<CallbackQuery>().also { callbackQueries = it }) += it
+			}
+			?: upd.pollAnswer?.also {
+				(pollAnswers ?: list<PollAnswer>().also { pollAnswers = it }) += it
+			}
+			?: upd.poll?.also {
+				(polls ?: list<Poll>().also { polls = it }) += it
+			}
+			?: upd.channelPost?.also {
+				(channelPosts ?: list<Message>().also { channelPosts = it }) += it
+			}
+			?: upd.editedChannelPost?.also {
+				(editedChannelPosts ?: list<Message>().also { editedChannelPosts = it }) += it
+			}
+			?: upd.inlineQuery?.also {
+				(inlineQueries ?: list<InlineQuery>().also { inlineQueries = it }) += it
+			}
+			?: upd.chosenInlineResult?.also {
+				(chosenInlineResults ?: list<ChosenInlineResult>().also { chosenInlineResults = it }) += it
+			}
+			?: upd.shippingQuery?.also {
+				(shippingQueries ?: list<ShippingQuery>().also { shippingQueries = it }) += it
+			}
+			?: upd.preCheckoutQuery?.also {
+				(preCheckoutQueries ?: list<PreCheckoutQuery>().also { preCheckoutQueries = it }) += it
+			}
+			?: upd.myChatMember?.also {
+				(myChatMembers ?: list<ChatMemberUpdated>().also { myChatMembers = it }) += it
+			}
+			?: upd.chatJoinRequest?.also {
+				(chatJoinRequests ?: list<ChatJoinRequest>().also { chatJoinRequests = it }) += it
+			}
+		}
+
+		messages?.apply(handler::messages)
+		editedMessages?.apply(handler::editedMessages)
+		channelPosts?.apply(handler::channelPosts)
+		editedChannelPosts?.apply(handler::editedChannelPosts)
+		inlineQueries?.apply(handler::inlineQueries)
+		chosenInlineResults?.apply(handler::chosenInlineResults)
+		callbackQueries?.apply(handler::callbackQueries)
+		shippingQueries?.apply(handler::shippingQueries)
+		preCheckoutQueries?.apply(handler::preCheckoutQueries)
+		polls?.apply(handler::polls)
+		pollAnswers?.apply(handler::pollAnswers)
+		myChatMembers?.apply(handler::myChatMembers)
+		chatMembers?.apply(handler::chatMembers)
+		chatJoinRequests?.apply(handler::chatJoinRequests)
+	}
+
+	override fun processUpdate(update: Update) {
+
+		update.message?.also { handler.messages(listOf(it)) }
+		?: update.editedMessage?.also { handler.editedMessages(listOf(it)) }
+		?: update.chatMember?.also { handler.chatMembers(listOf(it)) }
+		?: update.callbackQuery?.also { handler.callbackQueries(listOf(it)) }
+		?: update.pollAnswer?.also { handler.pollAnswers(listOf(it)) }
+		?: update.poll?.also { handler.polls(listOf(it)) }
+		?: update.channelPost?.also { handler.channelPosts(listOf(it)) }
+		?: update.editedChannelPost?.also { handler.editedChannelPosts(listOf(it)) }
+		?: update.inlineQuery?.also { handler.inlineQueries(listOf(it)) }
+		?: update.chosenInlineResult?.also { handler.chosenInlineResults(listOf(it)) }
+		?: update.shippingQuery?.also { handler.shippingQueries(listOf(it)) }
+		?: update.preCheckoutQuery?.also { handler.preCheckoutQueries(listOf(it)) }
+		?: update.myChatMember?.also { handler.myChatMembers(listOf(it)) }
+		?: update.chatJoinRequest?.also { handler.chatJoinRequests(listOf(it)) }
+	}
+
+	fun <T>list() = LinkedList<T>()
+}

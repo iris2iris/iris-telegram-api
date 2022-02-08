@@ -22,15 +22,16 @@ class TgWebhookRequestServerDefault(private val server: HttpServer): HttpHandler
 		}
 
 		override fun writeResponse(response: String, code: Int) {
-			writeResponsePrivate(request, response, code)
+			_writeResponse(response, code)
 		}
 
 		override fun body(): String {
 			return request.requestBody.reader().use { it.readText() }
 		}
 
-		private fun writeResponsePrivate(request: HttpExchange, str: String, rCode: Int = 200) {
+		private fun _writeResponse(str: String, rCode: Int = 200) {
 			val bytes = str.toByteArray()
+			val request = this.request
 			request.sendResponseHeaders(rCode, bytes.size.toLong())
 			request.responseBody.use { it.write(bytes) }
 			request.close()
@@ -59,4 +60,14 @@ class TgWebhookRequestServerDefault(private val server: HttpServer): HttpHandler
 	override fun stop(seconds: Int) {
 		server.stop(seconds)
 	}
+
+	override fun stop() {
+		stop(1)
+	}
+
+	override fun join() {
+		TODO("Not yet implemented")
+	}
+
+	override fun run() = start()
 }

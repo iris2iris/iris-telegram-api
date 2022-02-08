@@ -5,14 +5,18 @@ import java.net.URI
 
 /**
  * @created 26.12.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
 interface TgWebhookRequestHandler {
+
 	fun handle(request: Request)
 
 	interface Request {
+
 		fun findHeader(key: String): String?
+
 		val requestUri: URI
+
 		val remoteAddress: InetSocketAddress
 
 		fun writeResponse(response: String, code: Int = 200)

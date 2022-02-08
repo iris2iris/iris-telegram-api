@@ -1,71 +1,76 @@
 package iris.tg.webhook
 
 import com.sun.net.httpserver.HttpServer
-import iris.tg.TgEventHandler
-import iris.tg.TgUpdateProcessor
-import iris.tg.TgUpdateProcessorDefault
+import iris.tg.*
+import iris.tg.api.ResponseHandler
+import iris.tg.api.items.Update
+import iris.tg.processors.TgUpdateMultibotProcessor
+import iris.tg.processors.TgUpdateProcessor
+import iris.tg.processors.pack.TgEventMessagePackHandler
+import iris.tg.processors.pack.TgEventMessagePackHandlerBasicTypes
+import iris.tg.processors.pack.TgEventPackHandlerBasicTypes
+import iris.tg.processors.pack.TgUpdateProcessorPack
+import iris.tg.processors.single.TgEventMessageSingleHandler
+import iris.tg.processors.single.TgEventMessageSingleHandlerBasicTypes
+import iris.tg.processors.single.TgUpdateProcessorSingle
 import java.net.InetSocketAddress
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-/**
- * Главный класс для создания Webhook сервера. Создаёт сервер TgWebhookBot из переданных настроек, готовый к запуску
- *
- * @created 26.12.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
- */
-
-@Suppress("MemberVisibilityCanBePrivate")
 class TgWebhookBotBuilder {
 	var server: TgWebhookRequestServer? = null
-	var groupbotSource: GroupbotSource? = null
-	var groupbot: GroupbotSource.Groupbot? = null
-	var eventReadWriteBuffer: TgWebhookReadWriteBuffer? = null
-	var updateProcessor: TgUpdateProcessor? = null
-	var eventHandler: TgEventHandler? = null
+	var updateReadWriteBuffer: TgReadWriteUpdateBuffer<Update>? = null
+	var updateProcessor: TgUpdateProcessor<Update>? = null
 	var requestHandler: TgWebhookRequestHandler? = null
-	var path: String = "/callback"
+	var path: String = "/webhook"
 	var port: Int = 80
 	var requestsExecutor: Executor? = null
 	var addressTester: AddressTester? = AddressTesterDefault()
-	var expireEventTime: Long = 25_000L
+	var expireEventTime: Long = 0L
 	var tgTimeVsLocalTimeDiff: Long = 0L
+	var responseHandler: ResponseHandler<Update?>? = null
 
-	companion object {
-		fun build(initializer: TgWebhookBotBuilder.() -> Unit): TgWebhookBot {
-			return TgWebhookBotBuilder().apply(initializer).buildGroupCallback()
-		}
-	}
-
-	fun buildGroupCallback() : TgWebhookBot {
-		val updateProcessor = this.updateProcessor ?: TgUpdateProcessorDefault(this.eventHandler ?: throw IllegalStateException("Event processor is not set"))
+	fun build() : QueuedService<Update> {
+		val buffer = updateReadWriteBuffer?: TgReadWriteBufferDefault(1000)
 		val server = server ?: initDefaultServer(port, requestsExecutor?: Executors.newFixedThreadPool(4))
-
-
-		val buffer = eventReadWriteBuffer?: let {
-
-			TgWebhookReadWriteBufferDefault(1000)
-		}
-
+		val updateProcessor = this.updateProcessor ?: throw IllegalStateException("Event processor is not set")
 		val requestHandler = this.requestHandler
+
 		if (requestHandler != null) {
 			server.setHandler(path, requestHandler)
 		} else {
+			val responseHandler = responseHandler ?: webhookBodyHandler()
 			server.setHandler(path, TgWebhookRequestHandlerDefault(
-				groupbotSource ?: GroupSourceSimple(groupbot ?: throw IllegalStateException("Neither groupbot nor groupbotSource were not set"))
-				, buffer
-				, addressTester
-				, expireEventTime, tgTimeVsLocalTimeDiff
+				object : TgUpdateMultibotProcessor<Update> {
+					override fun processUpdates(fromBot: BotSource.BotData, updates: List<Update>) {
+						buffer.write(updates)
+					}
+
+					override fun processUpdate(fromBot: BotSource.BotData, update: Update) {
+						buffer.write(update)
+					}
+				}, responseHandler, addressTester, null, expireEventTime, tgTimeVsLocalTimeDiff
 			))
 		}
 
-		return TgWebhookBot(server, buffer, updateProcessor)
+		return QueuedService(server, updateProcessor, buffer)
 	}
 
 	private fun initDefaultServer(port: Int, requestsExecutor: Executor): TgWebhookRequestServer {
-		val server = HttpServer.create()
-		server.bind(InetSocketAddress(port), 0)
+		val server = HttpServer.create(InetSocketAddress(port), 0)
 		server.executor = requestsExecutor
 		return TgWebhookRequestServerDefault(server)
 	}
+
+	fun toProcessor(handler: TgEventMessageSingleHandlerBasicTypes): TgUpdateProcessor<Update> {
+		return TgUpdateProcessorSingle(handler)
+	}
+
+	fun toProcessor(handler: TgEventPackHandlerBasicTypes): TgUpdateProcessor<Update> {
+		return TgUpdateProcessorPack(handler)
+	}
+}
+
+fun webhookBot(initializer: TgWebhookBotBuilder.() -> Unit): QueuedService<Update> {
+	return TgWebhookBotBuilder().apply(initializer).build()
 }

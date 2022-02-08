@@ -1,10 +1,11 @@
 package iris.tg.command
 
-import iris.tg.event.Message
+import iris.tg.api.items.Message
+
 
 /**
  * @created 27.10.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
 class CommandExtractorDefault(private val prefixes: String?) : CommandExtractor {
 
@@ -26,10 +27,10 @@ class CommandExtractorDefault(private val prefixes: String?) : CommandExtractor 
 			ind == -1 -> if (text.length <= 150) correctText(text, offset) else null
 			ind <= 150 -> text.substring(offset, ind)
 			else -> null
-		}?.toLowerCase()
+		}?.lowercase()
 	}
 
-	private inline fun correctText(text: String, startIndex: Int): String {
+	private fun correctText(text: String, startIndex: Int): String {
 		return if (startIndex == 0) text else text.substring(startIndex)
 	}
 }

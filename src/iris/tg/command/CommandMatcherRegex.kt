@@ -1,10 +1,10 @@
 package iris.tg.command
 
-import iris.tg.event.Message
+import iris.tg.api.items.Message
 
 /**
  * @created 27.10.2020
- * @author [Ivan Ivanov](https://vk.com/irisism)
+ * @author [Ivan Ivanov](https://t.me/irisism)
  */
 open class CommandMatcherRegex(private val commandPattern: Regex, private val runCommand: CommandRegex): CommandMatcherWithHash {
 
@@ -12,7 +12,7 @@ open class CommandMatcherRegex(private val commandPattern: Regex, private val ru
 
 	constructor(commandPattern: Regex, runCommand: (message: Message, params: List<String>) -> Unit) : this(commandPattern, object : CommandRegex {
 		override fun run(message: Message, groupValues: List<String>) {
-			runCommand(message,groupValues)
+			runCommand(message, groupValues)
 		}
 	})
 
