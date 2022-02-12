@@ -154,9 +154,9 @@ abstract class TgApiAbstract<ResponseType>(protected val token: String, apiPath:
 
 	open fun getUpdates(offset: Long, limit: Int = 0, timeout: Int = 10, allowedUpdates: AllowedUpdates? = null): ResponseType {
 		val options = mutableQuery(4)
-		options.putIfNotEmpty("offset", offset)
+		options["offset"] = offset
 		options.putIfNotEmpty("limit", limit)
-		options.putIfNotEmpty("timeout", timeout)
+		options["timeout"] = timeout
 		options.putIfNotEmpty("allowed_updates", allowedUpdates?.let { array2JsonString(it.toArray()) })
 		return request("getUpdates", options)
 	}
