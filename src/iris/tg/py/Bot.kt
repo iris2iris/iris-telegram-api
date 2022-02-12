@@ -2,14 +2,13 @@ package iris.tg.py
 
 import iris.tg.QueuedService
 import iris.tg.TgService
-import iris.tg.api.AllowedUpdates
-import iris.tg.api.SendDefaults
-import iris.tg.api.TgApiObjFuture
-import iris.tg.api.TgApiObject
+import iris.tg.api.*
 import iris.tg.api.items.*
+import iris.tg.api.response.TgResponse
 import iris.tg.command.TgCommandHandler
 import iris.tg.longpoll.longPollQueued
 import iris.tg.py.items.PyMessage
+import iris.tg.py.response.PyResponse
 import iris.tg.trigger.TriggerPack2Lambda
 import iris.tg.trigger.TriggerPack2Single
 import iris.tg.trigger.TriggerPackFilterHandler
@@ -18,10 +17,11 @@ import iris.tg.trigger.TriggerPackFilterHandler
  * @created 08.02.2022
  * @author [Ivan Ivanov](https://t.me/irisism)
  */
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class Bot(token: String
-		  , allowedUpdates: AllowedUpdates? = null
-		  , dropPending: Boolean = false
+	, allowedUpdates: AllowedUpdates? = null
+	, dropPending: Boolean = false
+	, responseHandler: PyResponseHandler? = null
 ): TgService {
 
 	private val triggers = TriggerHandlerPackPy()
@@ -34,11 +34,12 @@ class Bot(token: String
 	private val listener: QueuedService<Update>
 
 	init {
-		val handler = PyResponseHandler(this)
+		val handler = responseHandler ?: PyResponseHandler(this)
 		api = TgApiObjFuture(token, handler)
 
 		if (dropPending || allowedUpdates != null) {
-			api.getUpdates(if (dropPending) Long.MAX_VALUE else 0, 0, 0, allowedUpdates).get()?.apply {
+			val offset = if (dropPending) -1L else 0L
+			api.getUpdates(offset = offset, limit = 1, timeout = 0, allowedUpdates = allowedUpdates).get()?.apply {
 				if (!ok)
 					throw IllegalStateException(with(error!!) { "$description ($errorCode)" })
 			}
