@@ -8,7 +8,7 @@ import iris.tg.py.response.PyGetUpdateResponse
 import iris.tg.py.response.PySendMessageResponse
 import java.io.InputStream
 
-open class PyResponseHandler(private val bot: Bot? = null) : ResponseHandler_IrisJsonObj() {
+open class PyResponseHandler(var bot: Bot? = null) : ResponseHandler_IrisJsonObj() {
 
 	override fun process(method: String, data: String?): IrisJsonResponse {
 		data ?: throw NullPointerException("data is null")
