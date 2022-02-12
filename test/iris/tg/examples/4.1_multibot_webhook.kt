@@ -29,13 +29,13 @@ fun main() {
 
 	tgApi(bot1Token).apply {
 		setWebhook("$webhookBeginUrl$bot1Id")
-		.apply(::println)
+			.apply(::println)
 		getWebhookInfo().apply(::println)
 	}
 
 	tgApi(bot2Token).apply {
 		setWebhook("$webhookBeginUrl$bot2Id")
-		.apply(::println)
+			.apply(::println)
 		getWebhookInfo().apply(::println)
 	}
 
@@ -64,7 +64,7 @@ fun main() {
 		}
 
 		override fun processUpdate(update: UpdateExt) {
-			println("Update received by bot with ID: " + update.botData.id + " text: " + update.update)
+			println("Update received by bot with ID: " + update.forBot.id + " text: " + update.update)
 		}
 	}
 
@@ -76,7 +76,7 @@ fun main() {
 		path = uri
 		updateProcessor = processor
 		port = 8000
-		tgVsLocalTimeDiff = TestUtil.tgVsLocalTimeDiff()
+		//tgVsLocalTimeDiff = TestUtil.tgVsLocalTimeDiff()
 	}
 	bot.run()
 }

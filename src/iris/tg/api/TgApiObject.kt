@@ -1,5 +1,6 @@
 package iris.tg.api
 
+import iris.tg.api.items.MessageEntity
 import iris.tg.api.response.*
 import iris.tg.connection.Connection
 
@@ -11,12 +12,12 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		chat_id: String,
 		text: String,
 		parse_mode: String?,
-		entities: String?,
-		disable_web_page_preview: Boolean,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		entities: List<MessageEntity>?,
+		disable_web_page_preview: Boolean?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendMessage(
@@ -37,12 +38,12 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		chat_id: Long,
 		text: String,
 		parse_mode: String?,
-		entities: String?,
-		disable_web_page_preview: Boolean,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		entities: List<MessageEntity>?,
+		disable_web_page_preview: Boolean?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendMessage(
@@ -59,8 +60,8 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		).cast()
 	}
 
-	override fun getUpdates(offset: Long, timeout: Int, allowedTypes: String?): GetUpdatesResponse {
-		return super.getUpdates(offset, timeout, allowedTypes).cast()
+	override fun getUpdates(offset: Long, limit: Int, timeout: Int, allowedUpdates: AllowedUpdates?): GetUpdatesResponse {
+		return super.getUpdates(offset, limit, timeout, allowedUpdates).cast()
 	}
 
 	override fun getChatMember(chatId: Long, userId: Long): GetChatMemberResponse {
@@ -101,11 +102,11 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		file: Connection.BinaryData,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendPhoto(
@@ -127,11 +128,11 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		file: Connection.BinaryData,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendPhoto(
@@ -153,11 +154,11 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		fileId: String,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendPhoto(
@@ -179,11 +180,11 @@ open class TgApiObject(token: String, responseHandler: ResponseHandler<TgRespons
 		fileId: String,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): SendMessageResponse {
 		return super.sendPhoto(

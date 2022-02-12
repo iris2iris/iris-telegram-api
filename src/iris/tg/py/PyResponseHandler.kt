@@ -8,17 +8,15 @@ import iris.tg.py.response.PyGetUpdateResponse
 import iris.tg.py.response.PySendMessageResponse
 import java.io.InputStream
 
-class PyResponseHandler() : ResponseHandler_IrisJsonObj() {
-
-	lateinit var api: TgApiObjFuture
+class PyResponseHandler(private val bot: Bot? = null) : ResponseHandler_IrisJsonObj() {
 
 	override fun process(method: String, data: String?): IrisJsonResponse {
 		data ?: throw NullPointerException("data is null")
 		val json = JsonFlowParser.start(data)
 		return when (method) {
-			"getUpdates" -> PyGetUpdateResponse(api, json)
-			"sendMessage" -> PySendMessageResponse(api, json)
-			"editMessageText" -> PySendMessageResponse(api, json)
+			"getUpdates" -> PyGetUpdateResponse(bot, json)
+			"sendMessage" -> PySendMessageResponse(json)
+			"editMessageText" -> PySendMessageResponse(json)
 
 			"getChatMember" -> IrisJsonGetChatMemberResponse(json)
 			"getChatAdministrators" -> IrisJsonGetChatAdministratorsResponse(json)
@@ -27,7 +25,7 @@ class PyResponseHandler() : ResponseHandler_IrisJsonObj() {
 			"unbanChatMember" -> IrisJsonBooleanResponse(json)
 			"getChat" -> IrisJsonGetChatResponse(json)
 			"deleteMessage" -> IrisJsonBooleanResponse(json)
-			"sendPhoto" -> PySendMessageResponse(api, json)
+			"sendPhoto" -> PySendMessageResponse(json)
 			"getFile" -> IrisJsonGetFileResponse(json)
 			"answerCallbackQuery" -> IrisJsonBooleanResponse(json)
 			"restrictChatMember" -> IrisJsonBooleanResponse(json)

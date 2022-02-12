@@ -3,7 +3,7 @@ package iris.tg.pojo.items
 import iris.tg.api.items.MessageEntity
 import iris.tg.api.items.User
 
-class MessageEntity_Pojo(
+open class MessageEntity_Pojo(
 	override val type: String
 	, override val offset: Int
 	, override val length: Int

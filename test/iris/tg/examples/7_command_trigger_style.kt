@@ -1,10 +1,10 @@
 package iris.tg.examples
 
+import iris.tg.command.TgCommandHandler
 import iris.tg.longpoll.TgLongPoll
-import iris.tg.command.TgSingleCommandHandler
 import iris.tg.tgApi
 import iris.tg.tgApiFuture
-import iris.tg.trigger.TgEventTriggerSingleHandler
+import iris.tg.trigger.TriggerHandlerSingleBasicTypes
 import kotlin.system.exitProcess
 
 /**
@@ -23,37 +23,39 @@ fun main() {
 	// api.deleteWebhook().get() // Раскомментировать в случае ошибки конфликта работающего webhook'а
 
 	// Определяем обработчик триггеров
-	val triggerHandler = TgEventTriggerSingleHandler()
+	val triggerHandler = TriggerHandlerSingleBasicTypes()
 
 	// можно настраивать лямбдами
 	triggerHandler.onMessage {
 		println("Получено сообщение от ${it.chat.id}: ${it.text}")
 	}
 
-	triggerHandler.onMessageEdit {
+	triggerHandler.onMessage {
 		println("Сообщение исправлено ${it.messageId}: ${it.text}")
 	}
 
 	// можно настраивать классами триггеров
-	triggerHandler += TgSingleCommandHandler {
-		text("пинг") {
-			api.sendMessage(it.chat.id, "ПОНГ!")
+	triggerHandler.onMessage (
+		TgCommandHandler {
+			text("пинг") {
+				api.sendMessage(it.chat.id, "ПОНГ!")
+			}
+
+			text("мой ид") {
+				api.sendMessage(it.chat.id, "Ваш ID равен: ${it.from?.id}")
+			}
+
+			regex("""рандом (\d+) (\d+)""") { mess, params ->
+
+				var first = params[1].toInt()
+				var second = params[2].toInt()
+				if (second < first)
+					first = second.also { second = first }
+
+				api.sendMessage(mess.chat.id, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
+			}
 		}
-
-		text("мой ид") {
-			api.sendMessage(it.chat.id, "Ваш ID равен: ${it.from?.id}")
-		}
-
-		regex("""рандом (\d+) (\d+)""") { mess, params ->
-
-			var first = params[1].toInt()
-			var second = params[2].toInt()
-			if (second < first)
-				first = second.also { second = first }
-
-			api.sendMessage(mess.chat.id, "🎲 Случайное значение в диапазоне [$first..$second] выпало на ${(first..second).random()}")
-		}
-	}
+	)
 
 	// Передаём в параметрах слушателя событий токен и созданный обработчик команд
 	val listener = TgLongPoll(tgApi(token), triggerHandler)
@@ -72,7 +74,7 @@ fun tt() {
 
 
 
-	val triggerHandler = TgEventTriggerSingleHandler {
+	val triggerHandler = TriggerHandlerSingleBasicTypes {
 		onMessage {
 			println("Получено сообщение от ${it.chat.id}: ${it.text}")
 		}

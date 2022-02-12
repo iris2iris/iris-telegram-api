@@ -1,5 +1,6 @@
 package iris.tg.api
 
+import iris.tg.api.items.MessageEntity
 import iris.tg.api.response.*
 import iris.tg.connection.Connection
 import java.util.concurrent.CompletableFuture
@@ -15,12 +16,12 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		chat_id: String,
 		text: String,
 		parse_mode: String?,
-		entities: String?,
-		disable_web_page_preview: Boolean,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		entities: List<MessageEntity>?,
+		disable_web_page_preview: Boolean?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendMessage(
@@ -41,12 +42,12 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		chat_id: Long,
 		text: String,
 		parse_mode: String?,
-		entities: String?,
-		disable_web_page_preview: Boolean,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		entities: List<MessageEntity>?,
+		disable_web_page_preview: Boolean?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendMessage(
@@ -71,7 +72,7 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		inline_message_id: String?,
 		parse_mode: String?,
 		entities: String?,
-		disable_web_page_preview: Boolean,
+		disable_web_page_preview: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.editMessageText(
@@ -87,12 +88,12 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 	}
 
 	override fun editMessageText(
-		chat_id: String?,
+		chat_id: String,
 		message_id: Int,
 		text: String,
 		parse_mode: String?,
 		entities: String?,
-		disable_web_page_preview: Boolean,
+		disable_web_page_preview: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.editMessageText(
@@ -112,7 +113,7 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		text: String,
 		parse_mode: String?,
 		entities: String?,
-		disable_web_page_preview: Boolean,
+		disable_web_page_preview: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.editMessageText(
@@ -131,7 +132,7 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		text: String,
 		parse_mode: String?,
 		entities: String?,
-		disable_web_page_preview: Boolean,
+		disable_web_page_preview: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.editMessageText(
@@ -144,8 +145,8 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		).cast()
 	}
 
-	override fun getUpdates(offset: Long, timeout: Int, allowedTypes: String?): CompletableFuture<GetUpdatesResponse> {
-		return super.getUpdates(offset, timeout, allowedTypes).cast()
+	override fun getUpdates(offset: Long, limit: Int, timeout: Int, allowedUpdates: AllowedUpdates?): CompletableFuture<GetUpdatesResponse> {
+		return super.getUpdates(offset, limit, timeout, allowedUpdates).cast()
 	}
 
 	override fun getChatMember(chatId: Long, userId: Long): CompletableFuture<GetChatMemberResponse> {
@@ -186,11 +187,11 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		file: Connection.BinaryData,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendPhoto(
@@ -212,11 +213,11 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		file: Connection.BinaryData,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendPhoto(
@@ -238,11 +239,11 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		fileId: String,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendPhoto(
@@ -264,11 +265,11 @@ open class TgApiObjFuture(token: String, responseHandler: ResponseHandler<TgResp
 		fileId: String,
 		caption: String?,
 		parse_mode: String?,
-		caption_entities: String?,
-		disable_notification: Boolean,
-		protect_content: Boolean,
+		caption_entities: List<MessageEntity>?,
+		disable_notification: Boolean?,
+		protect_content: Boolean?,
 		reply_to_message_id: Int,
-		allow_sending_without_reply: Boolean,
+		allow_sending_without_reply: Boolean?,
 		reply_markup: String?
 	): CompletableFuture<SendMessageResponse> {
 		return super.sendPhoto(

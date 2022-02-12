@@ -2,6 +2,7 @@ package iris.tg.api
 
 import iris.tg.connection.Connection
 import iris.tg.connection.ConnectionHttpClientDefault
+import iris.tg.connection.query.Query
 import java.net.http.HttpClient
 
 /**
@@ -16,12 +17,12 @@ open class TgApi<T>(token: String,
 
 	private val connection = connection ?: ConnectionHttpClientDefault(HttpClient.newHttpClient())
 
-	override fun requestImpl(url: String, method: String, options: Options?): T {
+	override fun requestImpl(url: String, method: String, options: Query?): T {
 		return connection.request(url, options)
 			.let { responseHandler.process(method, it) }
 	}
 
-	override fun requestUploadImpl(url: String, method: String, files: Map<String, Connection.BinaryData>, options: Options?): T {
+	override fun requestUploadImpl(url: String, method: String, files: Map<String, Connection.BinaryData>, options: Query?): T {
 		return connection.requestUpload(url, files, options)
 			.let { responseHandler.process(method, it) }
 	}

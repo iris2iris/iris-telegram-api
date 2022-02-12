@@ -8,7 +8,7 @@ interface TgEventPackHandler<M : Message
 	, CIR : ChosenInlineResult
 	, CQ : CallbackQuery
 	, SQ : ShippingQuery
-	, PCO: PreCheckoutQuery
+	, PCQ: PreCheckoutQuery
 	, P: Poll
 	, PA: PollAnswer
 	, CMU: ChatMemberUpdated
@@ -22,7 +22,7 @@ interface TgEventPackHandler<M : Message
 	fun chosenInlineResults(items: List<CIR>)
 	fun callbackQueries(items: List<CQ>)
 	fun shippingQueries(items: List<SQ>)
-	fun preCheckoutQueries(items: List<PCO>)
+	fun preCheckoutQueries(items: List<PCQ>)
 	fun polls(items: List<P>)
 	fun pollAnswers(items: List<PA>)
 	fun myChatMembers(items: List<CMU>)

@@ -30,7 +30,7 @@ fun main() {
 		override fun text(message: Message) {
 			if (message.text == "стоп") {
 				val r = api.deleteWebhook()
-				println(r?.result)
+				println(r.result ?: r.error)
 				exitProcess(0)
 			}
 

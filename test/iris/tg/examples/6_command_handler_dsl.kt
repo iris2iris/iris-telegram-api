@@ -3,7 +3,7 @@ package iris.tg.examples
 import iris.tg.api.items.Message
 import iris.tg.command.Command
 import iris.tg.longpoll.TgLongPoll
-import iris.tg.command.TgCommandPackHandler
+import iris.tg.command.TgCommandHandler
 import iris.tg.tgApi
 import iris.tg.tgApiFuture
 import java.util.*
@@ -27,7 +27,7 @@ fun main() {
 	// api.deleteWebhook().get() // Раскомментировать в случае ошибки конфликта работающего webhook'а
 
 	// Определяем обработчик команд
-	val commandsHandler = TgCommandPackHandler<Message> {
+	val commandsHandler = TgCommandHandler<Message> {
 		text("время") {
 			api.sendMessage(it.chat.id, "Время сервера: ${Date()}!")
 		}
@@ -89,7 +89,7 @@ fun answerHowAreYou(message: Message) {
 	TestUtil.api.sendMessage(message.chat.id, "Пока не родила!")
 }
 
-class AnswerWhoAreYou: Command {
+class AnswerWhoAreYou: Command<Message> {
 	override fun run(message: Message) {
 		TestUtil.api.sendMessage(message.chat.id, "Я есть бот")
 	}
@@ -97,7 +97,7 @@ class AnswerWhoAreYou: Command {
 
 fun ttt() {
 	// Определяем обработчик команд
-	val commandsHandler = TgCommandPackHandler<Message> {
+	val commandsHandler = TgCommandHandler<Message> {
 
 		text("время") {
 			TestUtil.api.sendMessage(it.chat.id, "Время сервера: ${Date()}!")

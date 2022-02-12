@@ -1,15 +1,10 @@
 package iris.tg.connection
 
-import iris.tg.api.Options
-import java.io.File
+import iris.tg.connection.query.Query
 import java.net.URI
-import java.net.URLEncoder
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
 
 /**
  * @created 25.10.2019
@@ -21,8 +16,8 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 		return request(url, if (data == null) null else HttpRequest.BodyPublishers.ofString(data), HttpResponse.BodyHandlers.ofString())
 	}
 
-	override fun request(url: String, data: Options?): Response {
-		return request(url, encodeOptions(data))
+	override fun request(url: String, data: Query?): Response {
+		return request(url, data?.toString())
 	}
 
 	fun request(url: String, data: HttpRequest.BodyPublisher?, responseHandler: HttpResponse.BodyHandler<*>, headers: Map<String, String>? = null): Response {
@@ -41,14 +36,15 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 
 	protected abstract fun <T>customRequest(request: HttpRequest, responseHandler: HttpResponse.BodyHandler<*>): T
 
-	override fun requestUpload(url: String, files: Map<String, Connection.BinaryData>, data: Options?): Response {
-		val map = data?.toMutableMap() ?: mutableMapOf()
-		map.putAll(files)
+	override fun requestUpload(url: String, files: Map<String, Connection.BinaryData>, data: Query?): Response {
+		/*val map = data?.toMutableMap() ?: mutableMapOf()
+		map.putAll(files)*/
+
 
 		val boundary = "testing"
 		val request = HttpRequest.newBuilder()
 				.uri(URI.create(url))
-				.POST(ofMimeMultipartData(map, boundary))
+				.POST(ofMimeMultipartData(data, files, boundary))
 				.header("Content-Type", "multipart/form-data; boundary=\"$boundary\"")
 				.build()
 
@@ -62,25 +58,26 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 		return customRequest(request, HttpResponse.BodyHandlers.ofByteArray())
 	}
 
-	private fun encode(o: String): String? {
-		return URLEncoder.encode(o, StandardCharsets.UTF_8)
-	}
-
-	private fun encodeOptions(obj: Options?): String? {
-		if (obj.isNullOrEmpty()) return null
-		val sb = StringBuilder()
-		for ((key, value) in obj.entries) {
-			sb.append(encode(key)).append('=')
-			.append(encode(value.toString())).append("&")
-		}
-		return sb.toString()
-	}
-
-	private fun ofMimeMultipartData(dataItem: Options, boundary: String): HttpRequest.BodyPublisher {
+	private fun ofMimeMultipartData(data: Query?, files: Map<String, Connection.BinaryData>, boundary: String): HttpRequest.BodyPublisher {
 		val byteArrays = ArrayList<ByteArray>()
 		val separator = ("--$boundary\r\nContent-Disposition: form-data; name=").toByteArray()
+		data?.apply {
+			for ((key, value) in this.toList()) {
+				byteArrays.add(separator)
+				byteArrays.add(("\"" + Query.encode(key) + "\"\r\n\r\n" + (value?.toString() ?: "") + "\r\n").toByteArray())
+			}
+		}
 
-		for (entry in dataItem.entries) {
+		for ((key, value) in files) {
+			byteArrays.add(separator)
+			val mimeType = value.mimeType
+			val filename = value.fileName
+			byteArrays.add(("\"" + Query.encode(key) + "\"; filename=\"" + filename + "\"\r\nContent-Type: " + mimeType + "\r\n\r\n").toByteArray())
+			byteArrays.add(value.binary())
+			byteArrays.add("\r\n".toByteArray())
+		}
+
+		/*for (entry in dataItem.entries) {
 			val value = entry.value ?: continue
 			byteArrays.add(separator)
 			if (value is Connection.BinaryData) {
@@ -117,9 +114,9 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 				byteArrays.add(Files.readAllBytes(path))
 				byteArrays.add("\r\n".toByteArray())
 			} else {
-				byteArrays.add(("\"" + encode(entry.key) + "\"\r\n\r\n" + entry.value + "\r\n").toByteArray())
+				byteArrays.add(("\"" + encode(entry.key) + "\"\r\n\r\n" + encode(entry.value) + "\r\n").toByteArray())
 			}
-		}
+		}*/
 		byteArrays.add(("--$boundary--").toByteArray())
 		return HttpRequest.BodyPublishers.ofByteArrays(byteArrays)
 	}

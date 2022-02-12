@@ -4,7 +4,7 @@ import iris.tg.api.items.CallbackGame
 import iris.tg.api.items.InlineKeyboardButton
 import iris.tg.api.items.LoginUrl
 
-class InlineKeyboardButton_Pojo(
+open class InlineKeyboardButton_Pojo(
 	override val text: String,
 	override val url: String? = null,
 	override val login_url: LoginUrl? = null,

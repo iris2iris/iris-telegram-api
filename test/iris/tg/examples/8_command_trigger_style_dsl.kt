@@ -1,11 +1,10 @@
 package iris.tg.examples
 
-import iris.tg.api.items.Message
+import iris.tg.command.TgCommandHandler
 import iris.tg.longpoll.TgLongPoll
-import iris.tg.trigger.TgEventTriggerHandler
-import iris.tg.command.TgCommandPackHandler
 import iris.tg.tgApi
 import iris.tg.tgApiFuture
+import iris.tg.trigger.TriggerHandlerSingleBasicTypes
 import kotlin.system.exitProcess
 
 /**
@@ -24,7 +23,7 @@ fun main() {
 	// api.deleteWebhook().get() // Раскомментировать в случае ошибки конфликта работающего webhook'а
 
 	// Определяем обработчик триггеров
-	val triggerHandler = TgEventTriggerHandler<Message> {
+	val triggerHandler = TriggerHandlerSingleBasicTypes {
 
 		onMessage {
 			println("Получено сообщение от ${it.chat.id}: ${it.text}")
@@ -35,7 +34,7 @@ fun main() {
 		}
 
 		onMessage(
-			TgCommandPackHandler {
+			TgCommandHandler {
 				text("пинг") {
 					api.sendMessage(it.chat.id, "ПОНГ!")
 				}

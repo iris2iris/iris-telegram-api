@@ -1,19 +1,19 @@
 package iris.tg.command
 
 import iris.tg.api.items.Message
-import iris.tg.processors.single.TgEventMessageSingleHandlerAdapter
 import iris.tg.processors.single.TgEventMessageSingleHandlerAdapterBasicTypes
-import iris.tg.trigger.TgEventTriggerSingleHandler
+import iris.tg.trigger.TriggerSingle
 
 /**
  * @created 27.10.2020
  * @author [Ivan Ivanov](https://t.me/irisism)
  */
 
+@Deprecated("Удалось объединить pack и single интерфейсы")
 open class TgSingleCommandHandler(
 	private val commandExtractor: CommandExtractor = CommandExtractorDefault(null),
 	private val untilFirstExecuted: Boolean = true
-) : TgEventMessageSingleHandlerAdapterBasicTypes(), TgEventTriggerSingleHandler.TriggerMessage {
+) : TgEventMessageSingleHandlerAdapterBasicTypes(), TriggerSingle<Message> {
 
 	private val map = mutableMapOf<Char, MutableList<CommandMatcher>>()
 

@@ -6,11 +6,8 @@ import iris.tg.api.ResponseHandler
 import iris.tg.api.items.Update
 import iris.tg.processors.TgUpdateMultibotProcessor
 import iris.tg.processors.TgUpdateProcessor
-import iris.tg.processors.pack.TgEventMessagePackHandler
-import iris.tg.processors.pack.TgEventMessagePackHandlerBasicTypes
 import iris.tg.processors.pack.TgEventPackHandlerBasicTypes
 import iris.tg.processors.pack.TgUpdateProcessorPack
-import iris.tg.processors.single.TgEventMessageSingleHandler
 import iris.tg.processors.single.TgEventMessageSingleHandlerBasicTypes
 import iris.tg.processors.single.TgUpdateProcessorSingle
 import java.net.InetSocketAddress

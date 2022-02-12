@@ -1,8 +1,7 @@
 package iris.tg.examples
 
 import iris.tg.api.items.Message
-import iris.tg.longpoll.longPollQueuedBot
-import iris.tg.processors.single.TgEventMessageSingleHandlerAdapter
+import iris.tg.longpoll.longPollQueued
 import iris.tg.processors.single.TgEventMessageSingleHandlerAdapterBasicTypes
 import iris.tg.tgApi
 
@@ -33,7 +32,7 @@ fun main() {
 	}
 
 	//
-	val bot = longPollQueuedBot {
+	val bot = longPollQueued {
 		api = tgApi(token)
 		updateProcessor = processor(textHandler)
 	}

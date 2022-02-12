@@ -1,0 +1,150 @@
+package iris.tg
+
+import java.util.logging.Logger
+
+/**
+ * @created 02.11.2020
+ * @author [Ivan Ivanov](https://t.me/irisism)
+ */
+open class TgReadWriteBufferDefault2<T>(private val maxQueueSize: Int) : TgReadWriteUpdateBuffer<T> {
+
+	protected var queue: ArrayDeque<T> = ArrayDeque(maxQueueSize)
+	private val queueWait = Object()
+
+	companion object {
+		private val logger = Logger.getLogger("iris.tg")
+	}
+
+	override fun write(event: T) {
+		synchronized(queueWait) {
+			if (queue.size < maxQueueSize) {
+				queue += event
+				queueWait.notify()
+
+				// нам не к спеху выходить из монитора, если только очередь уже не переполнена, тогда нужно
+				// прерваться и передать монитор другим потокам
+
+
+				// нам не к спеху выходить из монитора, если только очередь уже не переполнена, тогда нужно
+				// прерваться и передать монитор другим потокам
+				/*if (queue.size >= maxQueueSize)
+					queueWait.wait(1L)*/
+			} else { // queue is full
+				queueWait.wait(1L)
+				if (queue.size >= maxQueueSize) // is it still full?
+					queueIsFull()
+				else {
+					write(event)
+				}
+			}
+
+		}
+	}
+
+	override fun write(events: List<T>) {
+		/*synchronized(queueWait) {
+			val eventsSize = events.size
+			val size = queue.size
+			when {
+				queue.size + eventsSize <= maxQueueSize -> {
+					queue += events
+					queueWait.notify()
+				}
+				queue.size >= maxQueueSize -> {
+					queueIsFull()
+				}
+				else -> { // когда частично влазит, частично переполнено
+					queue += events.subList(0, maxQueueSize - size)
+					queueIsFull()
+					write(events.subList(maxQueueSize - size, events.size))
+				}
+			}
+		}*/
+
+		val eventsSize = events.size
+		val wroteSize = synchronized(queueWait) {
+			val size = queue.size
+			val wroteSize = when {
+				queue.size + eventsSize <= maxQueueSize -> {
+					queue += events
+					eventsSize
+				} else -> { // когда частично влазит, частично переполнено
+					val wroteSize = maxQueueSize - size
+					queue += events.subList(0, wroteSize)
+					wroteSize
+				}
+			}
+
+			if (queue.size >= maxQueueSize)
+				queueWait.wait(1L) // нужно прерваться на мгновение и передать монитор другому потоку
+
+			// если всё ещё лимит
+			if (queue.size >= maxQueueSize)
+				queueIsFull()
+			wroteSize
+		}
+
+		if (wroteSize < eventsSize)
+			write(events.subList(wroteSize, eventsSize))
+
+	}
+
+	override fun write(events: Array<T>) {
+		write(events.asList())
+	}
+
+	open fun queueIsFull() {
+		logger.warning { "Callback API queue is full (${queue.size} elements). Clearing..." }
+		queue.clear()
+	}
+
+	override fun readAll(wait: Boolean): List<T> {
+		return read(0, wait)
+	}
+
+	override fun read(limit: Int, wait: Boolean): List<T> {
+		synchronized(queueWait) {
+			do {
+				val queue = this.queue
+				if (queue.size != 0) {
+					val res = if (limit == 0 || queue.size <= limit) {
+						this.queue = ArrayDeque(maxQueueSize)
+						queue
+					} else {
+						val a = ArrayList<T>(limit)
+						for (i in 1..limit)
+							a += queue.removeFirst()
+						a
+					}
+					return res
+				}
+				if (!wait)
+					return emptyList()
+				queueWait.wait()
+			} while (true)
+		}
+	}
+
+	override fun read(dest: MutableList<T>, limit: Int, wait: Boolean): Int {
+		synchronized(queueWait) {
+			val queue = this.queue
+			do {
+				if (queue.size != 0) {
+					val res = if (limit == 0 || queue.size <= limit) {
+						this.queue = ArrayDeque(maxQueueSize)
+						dest.addAll(queue)
+						queue.size
+					} else {
+						for (i in 1..limit)
+							dest += queue.removeFirst()
+						limit
+					}
+					return res
+				}
+				if (!wait)
+					return 0
+				queueWait.wait()
+			} while (true)
+		}
+	}
+}

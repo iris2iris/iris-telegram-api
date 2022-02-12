@@ -3,7 +3,7 @@ package iris.tg.examples
 import iris.tg.api.items.Message
 import iris.tg.command.CommandMatcher
 import iris.tg.longpoll.TgLongPoll
-import iris.tg.command.TgCommandPackHandler
+import iris.tg.command.TgCommandHandler
 import iris.tg.processors.pack.TgEventMessagePackHandlerAdapterBasicTypes
 import iris.tg.processors.pack.TgTextPackHandler
 import iris.tg.tgApi
@@ -27,7 +27,7 @@ fun main() {
 	// api.deleteWebhook().get() // Раскомментировать в случае ошибки конфликта работающего webhook'а
 
 	// Определяем обработчик команд
-	val commandsHandler = TgCommandPackHandler<Message>()
+	val commandsHandler = TgCommandHandler<Message>()
 
 	commandsHandler.text("кинг") {
 		api.sendMessage(it.chat.id, "КОНГ!")
@@ -49,7 +49,7 @@ fun main() {
 	}
 
 	// Определяем произвольно анализирующий текст команды обработчик команды
-	commandsHandler += object : CommandMatcher {
+	commandsHandler += object : CommandMatcher<Message> {
 		override fun testAndExecute(command: String, message: Message): Boolean {
 			if (!(command.startsWith("пинг") || command.endsWith("пыньк"))) return false
 			api.sendMessage(message.chat.id, "ПОНГ!")

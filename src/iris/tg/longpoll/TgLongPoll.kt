@@ -4,21 +4,16 @@ import iris.tg.QueueLongPollServiceBuilder
 import iris.tg.QueuedService
 import iris.tg.TgService
 import iris.tg.api.TgApiObject
-import iris.tg.api.items.Message
 import iris.tg.api.items.Update
 import iris.tg.api.response.GetUpdatesResponse
 import iris.tg.api.response.TgResponse
 import iris.tg.processors.TgUpdateMultibotProcessor
 import iris.tg.processors.TgUpdateProcessor
 import iris.tg.processors.TgUpdateProcessor2Multibot
-import iris.tg.processors.pack.TgEventPackHandler
 import iris.tg.processors.pack.TgEventPackHandlerBasicTypes
-import iris.tg.processors.pack.TgTextPackHandler
 import iris.tg.processors.pack.TgUpdateProcessorPack
-import iris.tg.processors.single.TgEventSingleHandler
 import iris.tg.processors.single.TgEventSingleHandlerBasicTypes
 import iris.tg.processors.single.TgUpdateProcessorSingle
-import iris.tg.tgApi
 import iris.tg.webhook.BotSource
 import java.util.logging.Logger
 
@@ -62,7 +57,7 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 
 	companion object {
 
-		fun queued(initializer: QueueLongPollServiceBuilder.() -> Unit) = longPollQueuedBot(initializer)
+		fun queued(initializer: QueueLongPollServiceBuilder.() -> Unit) = longPollQueued(initializer)
 
 		private val logger = Logger.getLogger("iris.tg")
 	}
@@ -125,6 +120,6 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 
 }
 
-fun longPollQueuedBot(initializer: QueueLongPollServiceBuilder.() -> Unit): QueuedService<Update> {
+fun longPollQueued(initializer: QueueLongPollServiceBuilder.() -> Unit): QueuedService<Update> {
 	return QueueLongPollServiceBuilder().apply(initializer).build()
 }

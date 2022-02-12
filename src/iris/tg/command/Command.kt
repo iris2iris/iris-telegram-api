@@ -7,6 +7,6 @@ import iris.tg.api.items.Message
  * @author [Ivan Ivanov](https://t.me/irisism)
  */
 
-interface Command {
-	fun run(message: Message)
+interface Command<M: Message> {
+	fun run(message: M)
 }
