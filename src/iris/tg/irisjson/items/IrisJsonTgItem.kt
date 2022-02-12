@@ -15,7 +15,7 @@ open class IrisJsonTgItem(val source: JsonItem) : TgItem {
 		}
 	}
 
-	protected inline fun <T>itemOrNull(item: JsonItem, factory: (item: JsonItem) -> T): T? {
+	protected inline fun <T>itemOrNull(item: JsonItem, factory: (item: JsonItem) -> T?): T? {
 		return if (item.isNull()) null else factory(item)
 	}
 
@@ -26,4 +26,7 @@ open class IrisJsonTgItem(val source: JsonItem) : TgItem {
 	override fun toString(): String {
 		return source.toJsonString()
 	}
+
+	open fun pojo(): Any
+		= throw UnsupportedOperationException("pojo method not implemented")
 }

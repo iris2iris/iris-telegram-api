@@ -20,12 +20,22 @@ open class IrisJsonChat(sourceItem: JsonItem) : IrisJsonTgItem(sourceItem), Chat
 	override val description: String? by lazyItemOrNull("description") { it.asString() }
 	override val inviteLink: String? by lazyItemOrNull("inviteLink") { it.asString() }
 	override val pinnedMessage: Message? by lazyItemOrNull("pinned_message") { IrisJsonMessage(it) }
-	override val permissions: ChatPermissions? = null
-	override val slowModeDelay: Int = 0
-	override val messageAutoDeleteTime: Int = 0
-	override val hasProtectedContent: Boolean = false
-	override val stickerSetName: String? = null
-	override val canSetStickerSet: Boolean = false
-	override val linkedChatId: Long = 0L
-	override val location: ChatLocation? = null
+	override val permissions: ChatPermissions?
+		get() = itemOrNull(source["permissions"]) { IrisJsonChatPermissions(it) }
+
+	override val slowModeDelay: Int
+		get() = source["permissions"].asIntOrNull() ?: 0
+	override val messageAutoDeleteTime: Int
+		get() = source["message_auto_delete_time"].asIntOrNull() ?: 0
+	override val hasProtectedContent: Boolean
+		get() = source["has_protected_content"].asBooleanOrNull() ?: false
+	override val stickerSetName: String?
+		get() = source["sticker_set_name"].asStringOrNull()
+	override val canSetStickerSet: Boolean
+		get() = source["can_set_sticker_set"].asBooleanOrNull() ?: false
+	override val linkedChatId: Long
+		get() = source["linked_chat_id"].asLongOrNull() ?: 0L
+	override val location: ChatLocation?
+		get() = itemOrNull(source["location"]) { IrisJsonChatLocation(it) }
+
 }
