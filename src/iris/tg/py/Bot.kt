@@ -20,7 +20,7 @@ import iris.tg.trigger.TriggerPackFilterHandler
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class Bot(token: String
 	, allowedUpdates: AllowedUpdates? = null
-	, dropPending: Boolean = false
+	, dropPending: Boolean = true
 	, responseHandler: PyResponseHandler? = null
 ): TgService {
 
