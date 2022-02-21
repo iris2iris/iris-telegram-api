@@ -23,16 +23,15 @@ fun main() {
 	val res = bot.api.sendMessage(1, "Вызовем ошибку, отправив в несуществующий чат").get()
 	if (res.ok)
 		println("Каким-то чудом ошибки не произошло: $res")
+
+	bot.run_forever()
 }
 
 class MyPyResponseHandler : PyResponseHandler() {
 	override fun process(method: String, data: String?): IrisJsonResponse {
 		val res = super.process(method, data)
 		if (!res.ok) {
-			System.err.println("TG API Error: " + with(res.error) { "$description ($errorCode)" })
-			Thread.currentThread().stackTrace
-				.joinToString("\n")
-				.apply(System.err::println)
+			IllegalStateException("TG API Error: " + with(res.error) { "$description ($errorCode)" }).printStackTrace()
 		}
 		return res
 	}
