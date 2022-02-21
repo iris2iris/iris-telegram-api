@@ -62,6 +62,7 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 	private val exceptionHandler = exceptionHandler ?: GetUpdateExceptionHandlerDefault()
 
 	var isWorking = true
+	var updatesLimit = 100
 	var waitSeconds = 10
 	var offset = -1L
 
@@ -73,7 +74,7 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 		val updateProcessor = updateProcessor
 		while (!thisThread.isInterrupted && isWorking)  {
 			try {
-				val updates = api.getUpdates(offset, waitSeconds)
+				val updates = api.getUpdates(offset, updatesLimit, waitSeconds)
 				/*if (updates == null) {
 					if (!exceptionHandler.nullUpdates())
 						stop()
