@@ -32,26 +32,23 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 	constructor(api: TgApiObject, botData: BotSource.BotData, handler: TgUpdateMultibotProcessor<Update>, exceptionHandler: GetUpdateExceptionHandler<TgResponse>? = null)
 			: this(api, TgUpdateProcessor2Multibot<Update>(botData, handler), exceptionHandler)
 
-	private class GetUpdateExceptionHandlerDefault : GetUpdateExceptionHandler<TgResponse> {
+	open class GetUpdateExceptionHandlerDefault(/*private val sleepOnNull: Long = 100L, */private val sleepOnNotOk: Long = 100L) : GetUpdateExceptionHandler<TgResponse> {
 
 		override fun handle(e: Throwable): Boolean = throw e
 
-		override fun nullUpdates(): Boolean {
+		/*override fun nullUpdates(): Boolean {
 			logger.warning("NOT OK : Updates are null")
-			Thread.sleep(100L)
-			return false
-		}
+			if (sleepOnNull > 0L)
+				Thread.sleep(sleepOnNull)
+			return true
+		}*/
 
 		override fun notOk(errorItem: TgResponse): Boolean {
-			val error = errorItem.error!!
-			val errorCode = error.errorCode
-			if (errorCode == 502) {
-				logger.warning { "NOT OK (502): " + error.description }
-				Thread.sleep(100L)
-			} else {
-				logger.warning { "NOT OK: ${error.description} ($errorCode)" }
-			}
-			return false
+			val error = errorItem.error ?: return true
+			logger.warning { with (error) { "NOT OK: $description ($errorCode)" } }
+			if (sleepOnNotOk > 0L)
+				Thread.sleep(sleepOnNotOk)
+			return true
 		}
 	}
 
@@ -76,15 +73,15 @@ open class TgLongPoll(private val api: TgApiObject, private val updateProcessor:
 		val updateProcessor = updateProcessor
 		while (!thisThread.isInterrupted && isWorking)  {
 			try {
-				val updates = api.getUpdates(offset, waitSeconds) as GetUpdatesResponse?
-				if (updates == null) {
-					if (exceptionHandler.nullUpdates())
+				val updates = api.getUpdates(offset, waitSeconds)
+				/*if (updates == null) {
+					if (!exceptionHandler.nullUpdates())
 						stop()
 					continue
-				}
+				}*/
 
 				if (!updates.ok) {
-					if (exceptionHandler.notOk(updates))
+					if (!exceptionHandler.notOk(updates))
 						stop()
 					continue
 				}

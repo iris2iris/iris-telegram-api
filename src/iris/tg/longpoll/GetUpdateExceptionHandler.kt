@@ -6,6 +6,6 @@ package iris.tg.longpoll
  */
 interface GetUpdateExceptionHandler<T> {
 	fun handle(e: Throwable): Boolean
-	fun nullUpdates(): Boolean
+	//fun nullUpdates(): Boolean
 	fun notOk(errorItem: T): Boolean
 }
