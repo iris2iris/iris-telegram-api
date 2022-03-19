@@ -71,7 +71,7 @@ class QueueLongPollServiceBuilder {
 	var exceptionHandler: GetUpdateExceptionHandler<TgResponse>? = null
 
 	var buffer: TgReadWriteUpdateBuffer<Update>? = null
-
+	var waitSeconds: Int = 10
 
 	fun build(): QueuedService<Update> {
 		val updateProcessor = updateProcessor ?: throw IllegalArgumentException("updateProcessor is not set")
@@ -79,6 +79,7 @@ class QueueLongPollServiceBuilder {
 		val buffer = buffer ?: TgReadWriteBufferDefault(1000)
 
 		val service = TgLongPoll(api, UP(buffer), exceptionHandler)
+		service.waitSeconds = waitSeconds
 		return QueuedService(service, updateProcessor, buffer)
 	}
 
