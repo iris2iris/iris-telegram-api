@@ -5,4 +5,6 @@ package iris.tg.api.items
  * @author [Ivan Ivanov](https://t.me/irisism)
  */
 interface ReplyKeyboardRemove : ReplyMarkup {
+	val remove_keyboard: Boolean
+	val selective: Boolean
 }
