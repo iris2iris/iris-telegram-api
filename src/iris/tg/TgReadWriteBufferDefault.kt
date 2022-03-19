@@ -30,7 +30,6 @@ open class TgReadWriteBufferDefault<T>(private val maxQueueSize: Int, private va
 			val isNotFull = queue.size < maxQueueSize
 			if (isNotFull) {
 				queue += event
-				synchronized(notEmpty) { notEmpty.notify() }
 			}
 			isNotFull
 		}
@@ -77,7 +76,8 @@ open class TgReadWriteBufferDefault<T>(private val maxQueueSize: Int, private va
 					}
 				}
 			//}
-		}
+		} else
+			synchronized(notEmpty) { notEmpty.notify() }
 	}
 
 	override fun write(events: List<T>) {
