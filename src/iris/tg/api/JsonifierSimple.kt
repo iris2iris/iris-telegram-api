@@ -27,26 +27,24 @@ class JsonifierSimple: Jsonifier {
 		if (entities.isEmpty()) return "[]"
 		val sb = StringBuilder()
 		entities(sb, entities)
-		/*val sb = StringBuilder("[")
-		for (entity in entities) with(entity) {
-			sb.append("{\"type\":\" ").append(type).append("\",")
-			sb.append("\"offset\": ").append(offset).append(",")
-			sb.append("\"length\": ").append(length).append(",")
-			url?.apply { sb.append("\"url\":\"").append(this).append("\",") }
-			language?.apply { sb.append("\"language\":\"").append(this).append("\",") }
-			// User is not implemented
-			sb[sb.lastIndex] = '}'
-			sb.append(',')
-		}
-		sb[sb.lastIndex] = ']'*/
 		return sb.toString()
 	}
 
 	override fun replyMarkup(replyMarkup: ReplyMarkup): String {
 		return when (replyMarkup) {
 			is InlineKeyboardMarkup -> inlineKeyboardMarkup(replyMarkup)
+			is ReplyKeyboardRemove -> replyKeyboardRemove(replyMarkup)
 			else -> TODO("Not implemented")
 		}
+	}
+
+	private fun replyKeyboardRemove(replyMarkup: ReplyKeyboardRemove): String {
+		val sb = StringBuilder("{\"remove_keyboard\":true")
+		if (replyMarkup.selective)
+			sb.append(",\"selective\":true}")
+		else
+			sb.append('}')
+		return sb.toString()
 	}
 
 	private fun inlineKeyboardMarkup(replyMarkup: InlineKeyboardMarkup) : String {
@@ -61,12 +59,12 @@ class JsonifierSimple: Jsonifier {
 			for (col in row) with(col) {
 				sb.append("{\"text\": \"").append(escapeString(text)).append("\",")
 				url?.apply { sb.append("{\"url\": \"").append(escapeString(this)).append("\",") }
-				// login_url not implemented
+				// TODO: login_url not implemented
 
 				callback_data?.apply { sb.append("\"callback_data\": \"").append(escapeString(this)).append("\",") }
 				switch_inline_query?.apply { sb.append("\"switch_inline_query\": \"").append(escapeString(this)).append("\",") }
 
-				// callback_game is not implemented
+				// TODO: callback_game is not implemented
 				if (pay)
 					sb.append("\"switch_inline_query\": true,")
 				sb[sb.lastIndex] = '}'
