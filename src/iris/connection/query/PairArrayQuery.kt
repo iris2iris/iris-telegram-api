@@ -1,21 +1,19 @@
-package iris.tg.connection.query
+package iris.connection.query
 
-import iris.tg.connection.StringBuilderUrlEncoder
-import java.net.URLEncoder
+import iris.connection.StringBuilderUrlEncoder
 import java.nio.charset.StandardCharsets
 import kotlin.math.max
 
-open class ArrayQuery(initialCapacity: Int = 16) : MutableQuery {
+open class PairArrayQuery(initialCapacity: Int = 10) : MutableQuery {
 
-	private var keys: Array<String?> = arrayOfNulls(initialCapacity)
-	private var values: Array<Any?> = arrayOfNulls(initialCapacity)
+	private var keys: Array<Pair<String, Any?>?> = arrayOfNulls(initialCapacity)
 	private var pointer = 0
 
 	constructor(vararg pairs: Pair<String, Any?>) : this(pairs.size) {
 		ensureCapacity(pairs.size)
 		for ((key, value) in pairs) {
-			keys[pointer] = key
-			values[pointer] = value
+			keys[pointer] = key to value
+			//values[pointer] = value
 			pointer++
 		}
 	}
@@ -29,7 +27,6 @@ open class ArrayQuery(initialCapacity: Int = 16) : MutableQuery {
 				oldCapacity shr 1 /* preferred growth */
 			)
 			keys = keys.copyOf(newCapacity)
-			values = values.copyOf(newCapacity)
 		}
 	}
 
@@ -57,38 +54,32 @@ open class ArrayQuery(initialCapacity: Int = 16) : MutableQuery {
 		if (pointer == 0) return
 		for (i in 0 until pointer) {
 			val key = keys[i]!!
-			val value = values[i]
-			encode(sb, key)
+			//val value = values[i]
+			encode(sb, key.first)
 			sb.append('=')
-			value?.apply { encode(sb, this.toString()) }
+			encode(sb, key.second.toString())
 			sb.append("&")
 		}
 	}
 
 	override fun set(key: String, value: Any?) {
 		ensureCapacity(pointer + 1)
-		keys[pointer] = key
-		values[pointer] = value
+		keys[pointer] = key to value
+		//values[pointer] = value
 		pointer++
 	}
 
 	override fun toList(): List<Pair<String, Any?>> {
 		val res = ArrayList<Pair<String, Any?>>(keys.size)
-		for (i in 0 until pointer) {
-			val key = keys[i]!!
-			val value = values[i]
-			res += key to value
-		}
+		for (i in 0 until pointer)
+			res += keys[i]!!
 		return res
 	}
 
 	override fun toMap(): Map<String, Any?> {
 		val res = HashMap<String, Any?>(keys.size)
-		for (i in 0 until pointer) {
-			val key = keys[i]!!
-			val value = values[i]
-			res[key] = value
-		}
+		for (i in 0 until pointer)
+			res += keys[i]!!
 		return res
 	}
 }

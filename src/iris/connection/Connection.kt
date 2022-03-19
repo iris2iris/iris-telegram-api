@@ -1,6 +1,6 @@
-package iris.tg.connection
+package iris.connection
 
-import iris.tg.connection.query.Query
+import iris.connection.query.Query
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream

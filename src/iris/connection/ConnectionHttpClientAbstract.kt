@@ -1,16 +1,17 @@
-package iris.tg.connection
+package iris.connection
 
-import iris.tg.connection.query.Query
+import iris.connection.query.Query
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.time.Duration
 
 /**
  * @created 25.10.2019
  * @author [Ivan Ivanov](https://t.me/irisism)
  */
-abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected val client: HttpClient) : Connection<Response, BinaryResponse> {
+abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected val client: HttpClient, private val timeout: Long = 0) : Connection<Response, BinaryResponse> {
 
 	override fun request(url: String, data: String?): Response {
 		return request(url, if (data == null) null else HttpRequest.BodyPublishers.ofString(data), HttpResponse.BodyHandlers.ofString())
@@ -21,11 +22,13 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 	}
 
 	fun request(url: String, data: HttpRequest.BodyPublisher?, responseHandler: HttpResponse.BodyHandler<*>, headers: Map<String, String>? = null): Response {
-		var builder = HttpRequest.newBuilder()
+		val builder = HttpRequest.newBuilder()
 				.uri(URI.create(url))
+		if (timeout > 0)
+			builder.timeout(Duration.ofMillis(timeout))
 		if (data != null) {
 			builder.header("Content-Type", "application/x-www-form-urlencoded")
-			builder = builder.POST(data)
+			builder.POST(data)
 		}
 		headers?.forEach { (t, u) -> builder.header(t, u) }
 
@@ -46,6 +49,7 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 				.uri(URI.create(url))
 				.POST(ofMimeMultipartData(data, files, boundary))
 				.header("Content-Type", "multipart/form-data; boundary=\"$boundary\"")
+				.also { if (timeout > 0) it.timeout(Duration.ofMillis(timeout)) }
 				.build()
 
 		return customRequest(request, HttpResponse.BodyHandlers.ofString())
@@ -54,6 +58,7 @@ abstract class ConnectionHttpClientAbstract<Response, BinaryResponse>(protected 
 	override fun requestByteArray(url: String): BinaryResponse {
 		val request = HttpRequest.newBuilder()
 			.uri(URI.create(url))
+			.also { if (timeout > 0) it.timeout(Duration.ofMillis(timeout)) }
 			.build()
 		return customRequest(request, HttpResponse.BodyHandlers.ofByteArray())
 	}

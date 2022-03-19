@@ -1,7 +1,6 @@
-package iris.tg.connection.query
+package iris.connection.query
 
-import iris.tg.connection.StringBuilderUrlEncoder
-import java.net.URLEncoder
+import iris.connection.StringBuilderUrlEncoder
 import java.nio.charset.StandardCharsets
 
 class SinglePairQuery(val key: String, val value: Any?): Query {

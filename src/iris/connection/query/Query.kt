@@ -1,4 +1,4 @@
-package iris.tg.connection.query
+package iris.connection.query
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

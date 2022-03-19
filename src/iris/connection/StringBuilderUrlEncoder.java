@@ -23,7 +23,7 @@
  * questions.
  */
 
-package iris.tg.connection;
+package iris.connection;
 
 import java.io.CharArrayWriter;
 import java.io.UnsupportedEncodingException;

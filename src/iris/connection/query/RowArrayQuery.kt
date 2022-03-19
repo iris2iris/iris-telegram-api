@@ -1,6 +1,6 @@
-package iris.tg.connection.query
+package iris.connection.query
 
-import iris.tg.connection.StringBuilderUrlEncoder
+import iris.connection.StringBuilderUrlEncoder
 import java.nio.charset.StandardCharsets
 import kotlin.math.max
 
