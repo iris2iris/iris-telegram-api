@@ -1,8 +1,7 @@
 package iris.tg.test.api
 
-import iris.tg.connection.Connection
+import iris.connection.Connection
 import iris.tg.examples.TestUtil
-import iris.tg.pojo.items.InputMediaDocument_Pojo
 import iris.tg.pojo.items.InputMediaPhoto_Pojo
 import iris.tg.tgApi
 import java.io.File

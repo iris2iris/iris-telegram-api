@@ -3,13 +3,17 @@ package iris.tg.test
 import iris.tg.api.JsonifierSimple
 import iris.tg.keyboard.inlineKeyboardMarkup
 import iris.tg.pojo.items.InlineKeyboardMarkup_Pojo
+import iris.tg.pojo.items.ReplyKeyboardRemove_Pojo
 
 /**
  * @created 07.02.2022
  * @author [Ivan Ivanov](https://vk.com/irisism)
  */
+
+val simpleJsonifier = JsonifierSimple()
+
 fun main() {
-	val simpleJsonifier = JsonifierSimple()
+
 	/*run {
 		val arr = arrayOf("event1", "event2", "callback", "message")
 		simpleJsonifier.array2JsonString(arr).apply(::println)
@@ -32,7 +36,7 @@ fun main() {
 		simpleJsonifier.entities(listOf()).apply(::println)
 	}*/
 
-	run {
+	/*run {
 		val kb = inlineKeyboardMarkup {
 
 			// Хочешь аргументами в функцию
@@ -56,7 +60,14 @@ fun main() {
 	run {
 		val arr = InlineKeyboardMarkup_Pojo(listOf())
 		simpleJsonifier.replyMarkup(arr).apply(::println)
+	}*/
+
+	run {
+		val arr = ReplyKeyboardRemove_Pojo(true)
+		simpleJsonifier.replyMarkup(arr)
+			.apply(::println)
 	}
+
 }
 
 

@@ -1,8 +1,7 @@
 package iris.tg.test
 
-import iris.tg.connection.query.BasicQuery
-import iris.tg.connection.query.PairArrayQuery
-import iris.tg.connection.query.RowArrayQuery
+import iris.connection.query.BasicQuery
+import iris.connection.query.RowArrayQuery
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 

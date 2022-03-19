@@ -1,10 +1,7 @@
 package iris.tg.test
 
 import iris.tg.api.JsonifierSimple
-import iris.tg.api.items.InputMediaDocument
-import iris.tg.connection.Connection
-import iris.tg.keyboard.inlineKeyboardMarkup
-import iris.tg.pojo.items.InlineKeyboardMarkup_Pojo
+import iris.connection.Connection
 import iris.tg.pojo.items.InputMediaDocument_Pojo
 import iris.tg.pojo.items.InputMediaPhoto_Pojo
 import java.io.File
