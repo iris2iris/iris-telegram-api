@@ -1,7 +1,7 @@
 package iris.tg.irisjson
 
 import iris.tg.api.TgApiObjFuture
-import iris.tg.connection.Connection
+import iris.connection.Connection
 import java.util.concurrent.CompletableFuture
 
 /**

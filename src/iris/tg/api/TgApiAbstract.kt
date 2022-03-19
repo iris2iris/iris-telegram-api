@@ -3,11 +3,11 @@
 package iris.tg.api
 
 import iris.tg.api.items.*
-import iris.tg.connection.Connection.*
-import iris.tg.connection.query.MutableQuery
-import iris.tg.connection.query.Query
-import iris.tg.connection.query.mutableQuery
-import iris.tg.connection.query.query
+import iris.connection.Connection.*
+import iris.connection.query.MutableQuery
+import iris.connection.query.Query
+import iris.connection.query.mutableQuery
+import iris.connection.query.query
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

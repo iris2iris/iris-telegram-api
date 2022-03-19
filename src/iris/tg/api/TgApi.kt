@@ -1,8 +1,8 @@
 package iris.tg.api
 
-import iris.tg.connection.Connection
-import iris.tg.connection.ConnectionHttpClientDefault
-import iris.tg.connection.query.Query
+import iris.connection.Connection
+import iris.connection.ConnectionHttpClientDefault
+import iris.connection.query.Query
 import java.net.http.HttpClient
 
 /**

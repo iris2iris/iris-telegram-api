@@ -2,7 +2,7 @@ package iris.tg.api
 
 import iris.tg.api.items.MessageEntity
 import iris.tg.api.response.*
-import iris.tg.connection.Connection
+import iris.connection.Connection
 import java.util.concurrent.CompletableFuture
 
 /**

@@ -2,7 +2,7 @@ package iris.tg.api
 
 import iris.tg.api.items.InputMedia
 import iris.tg.api.items.MessageEntity
-import iris.tg.connection.Connection
+import iris.connection.Connection
 import iris.tg.pojo.items.InputMediaAnimation_Pojo
 import iris.tg.pojo.items.InputMediaDocument_Pojo
 import iris.tg.pojo.items.InputMediaPhoto_Pojo

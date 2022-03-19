@@ -2,7 +2,7 @@ package iris.tg.api
 
 import iris.tg.api.items.MessageEntity
 import iris.tg.api.response.*
-import iris.tg.connection.Connection
+import iris.connection.Connection
 
 open class TgApiObject(token: String, responseHandler: ResponseHandler<TgResponse>, apiPath: String? = null, connection: Connection<String, ByteArray?>? = null
 ) : TgApi<TgResponse>(token, responseHandler, apiPath, connection) {

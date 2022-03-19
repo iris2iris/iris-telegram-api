@@ -1,7 +1,7 @@
 package iris.tg.pojo.items
 
 import iris.tg.api.items.*
-import iris.tg.connection.Connection
+import iris.connection.Connection
 
 /**
  * @created 10.02.2022
