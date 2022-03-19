@@ -5,178 +5,113 @@ import java.util.*
 
 class TgEventPackSplitMessageHandler<M: Message>(private val handler: TgMessagePackHandler<M>) {
 
-	private val messages = LinkedList<M>()
-	private val newChatMembers = LinkedList<M>()
-	private val leftChatMember = LinkedList<M>()
-	private val newChatTitle = LinkedList<M>()
-	private val newChatPhoto = LinkedList<M>()
-	private val deleteChatPhoto = LinkedList<M>()
-	private val groupChatCreated = LinkedList<M>()
-	private val supergroupChatCreated = LinkedList<M>()
-	private val channelChatCreated = LinkedList<M>()
-	private val messageAutoDeleteTimerChanged = LinkedList<M>()
-	private val migrateToChatId = LinkedList<M>()
-	private val migrateFromChatId = LinkedList<M>()
-	private val pinnedMessage = LinkedList<M>()
-	private val invoice = LinkedList<M>()
-	private val successfulPayment = LinkedList<M>()
-	private val connectedWebsite = LinkedList<M>()
-	private val passportData = LinkedList<M>()
-	private val proximityAlertTriggered = LinkedList<M>()
-	private val voiceChatScheduled = LinkedList<M>()
-	private val voiceChatStarted = LinkedList<M>()
-	private val voiceChatEnded = LinkedList<M>()
-	private val voiceChatParticipantsInvited = LinkedList<M>()
-
 	fun messages(messages: List<M>) {
 
+		var msgs: MutableList<M>? = null
+		var newChatMembers: MutableList<M>? = null
+		var leftChatMember: MutableList<M>? = null
+		var newChatTitle: MutableList<M>? = null
+		var newChatPhoto: MutableList<M>? = null
+		var deleteChatPhoto: MutableList<M>? = null
+		var groupChatCreated: MutableList<M>? = null
+		var supergroupChatCreated: MutableList<M>? = null
+		var channelChatCreated: MutableList<M>? = null
+		var messageAutoDeleteTimerChanged: MutableList<M>? = null
+		var migrateToChatId: MutableList<M>? = null
+		var migrateFromChatId: MutableList<M>? = null
+		var pinnedMessage: MutableList<M>? = null
+		var invoice: MutableList<M>? = null
+		var successfulPayment: MutableList<M>? = null
+		var connectedWebsite: MutableList<M>? = null
+		var passportData: MutableList<M>? = null
+		var proximityAlertTriggered: MutableList<M>? = null
+		var voiceChatScheduled: MutableList<M>? = null
+		var voiceChatStarted: MutableList<M>? = null
+		var voiceChatEnded: MutableList<M>? = null
+		var voiceChatParticipantsInvited: MutableList<M>? = null
+		
 		for (m in messages) {
 			try {
-				m.text?.also { this.messages += m }
-				?: m.sticker?.also { this.messages += m }
-				?: m.photo?.also { this.messages += m }
-				?: m.animation?.also { this.messages += m }
-				?: m.video?.also { this.messages += m }
-				?: m.videoNote?.also { this.messages += m }
-				?: m.audio?.also { this.messages += m }
-				?: m.caption?.also { this.messages += m }
-				?: m.newChatMembers?.also { newChatMembers += m }
-				?: m.leftChatMember?.also { leftChatMember += m }
-				?: m.newChatTitle?.also { newChatTitle += m }
-				?: m.newChatPhoto?.also { newChatPhoto += m }
-				?: if (m.deleteChatPhoto) { deleteChatPhoto += m }
-				else if (m.groupChatCreated) { groupChatCreated += m }
-				else if (m.supergroupChatCreated) { supergroupChatCreated += m }
-				else if (m.channelChatCreated) { channelChatCreated += m }
-				else m.messageAutoDeleteTimerChanged?.apply { messageAutoDeleteTimerChanged += m }
-				?: if (m.migrateToChatId != 0L) migrateToChatId += m
-				else if (m.migrateFromChatId != 0L) migrateFromChatId += m
-				else m.pinnedMessage?.also { pinnedMessage += m }
-				?: m.invoice?.also { invoice += m }
-				?: m.successfulPayment?.also { successfulPayment += m }
-				?: m.connectedWebsite?.also { connectedWebsite += m }
-				?: m.passportData?.also { passportData += m }
-				?: m.proximityAlertTriggered?.also { proximityAlertTriggered += m }
-				?: m.voiceChatScheduled?.also { voiceChatScheduled += m }
-				?: m.voiceChatStarted?.also { voiceChatStarted += m }
-				?: m.voiceChatEnded?.also { voiceChatEnded += m }
-				?: m.voiceChatParticipantsInvited?.also { voiceChatParticipantsInvited += m }
-				?: run { this.messages += m }
+				m.text?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.sticker?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.photo?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.animation?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.video?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.videoNote?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.audio?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.caption?.also { (msgs ?: list().also { msgs = it }) += m }
+				?: m.newChatMembers?.also { (newChatMembers ?: list().also { newChatMembers = it }) += m }
+				?: m.leftChatMember?.also { (leftChatMember ?: list().also { leftChatMember = it }) += m }
+				?: m.newChatTitle?.also { (newChatTitle ?: list().also { newChatTitle = it }) += m }
+				?: m.newChatPhoto?.also { (newChatPhoto ?: list().also { newChatPhoto = it }) += m }
+				?: if (m.deleteChatPhoto) { (deleteChatPhoto ?: list().also { deleteChatPhoto = it }) += m }
+				else if (m.groupChatCreated) { (groupChatCreated ?: list().also { groupChatCreated = it }) += m }
+				else if (m.supergroupChatCreated) { (supergroupChatCreated ?: list().also { supergroupChatCreated = it }) += m }
+				else if (m.channelChatCreated) { (channelChatCreated ?: list().also { channelChatCreated = it }) += m }
+				else m.messageAutoDeleteTimerChanged?.apply { (messageAutoDeleteTimerChanged ?: list().also { messageAutoDeleteTimerChanged = it }) += m }
+				?: if (m.migrateToChatId != 0L) (migrateToChatId ?: list().also { migrateToChatId = it }) += m
+				else if (m.migrateFromChatId != 0L) (migrateFromChatId ?: list().also { migrateFromChatId = it }) += m
+				else m.pinnedMessage?.also { (pinnedMessage ?: list().also { pinnedMessage = it }) += m }
+				?: m.invoice?.also { (invoice ?: list().also { invoice = it }) += m }
+				?: m.successfulPayment?.also { (successfulPayment ?: list().also { successfulPayment = it }) += m }
+				?: m.connectedWebsite?.also { (connectedWebsite ?: list().also { connectedWebsite = it }) += m }
+				?: m.passportData?.also { (passportData ?: list().also { passportData = it }) += m }
+				?: m.proximityAlertTriggered?.also { (proximityAlertTriggered ?: list().also { proximityAlertTriggered = it }) += m }
+				?: m.voiceChatScheduled?.also { (voiceChatScheduled ?: list().also { voiceChatScheduled = it }) += m }
+				?: m.voiceChatStarted?.also { (voiceChatStarted ?: list().also { voiceChatStarted = it }) += m }
+				?: m.voiceChatEnded?.also { (voiceChatEnded ?: list().also { voiceChatEnded = it }) += m }
+				?: m.voiceChatParticipantsInvited?.also { (voiceChatParticipantsInvited ?: list().also { voiceChatParticipantsInvited = it }) += m }
+				?: run { (msgs ?: list().also { msgs = it }) += m }
 			} catch (e: Throwable) {
 				System.err.println(e.message!!)
 				println(m)
 			}
 		}
 
-		if (this.messages.isNotEmpty()) {
-			handler.texts(this.messages)
-			this.messages.clear()
-		}
+		msgs?.run { handler.texts(this) }
 
-		if (newChatMembers.isNotEmpty()) {
-			handler.newChatMembers(newChatMembers)
-			newChatMembers.clear()
-		}
+		newChatMembers?.run { handler.newChatMembers(this) }
 
-		if (leftChatMember.isNotEmpty()) {
-			handler.leftChatMember(leftChatMember)
-			leftChatMember.clear()
-		}
+		leftChatMember?.run { handler.leftChatMember(this) }
 
-		if (newChatTitle.isNotEmpty()) {
-			handler.newChatTitle(newChatTitle)
-			newChatTitle.clear()
-		}
+		newChatTitle?.run { handler.newChatTitle(this) }
 
-		if (newChatPhoto.isNotEmpty()) {
-			handler.newChatPhoto(newChatPhoto)
-			newChatPhoto.clear()
-		}
+		newChatPhoto?.run { handler.newChatPhoto(this) }
 
-		if (deleteChatPhoto.isNotEmpty()) {
-			handler.deleteChatPhoto(deleteChatPhoto)
-			deleteChatPhoto.clear()
-		}
+		deleteChatPhoto?.run { handler.deleteChatPhoto(this) }
 
-		if (groupChatCreated.isNotEmpty()) {
-			handler.groupChatCreated(groupChatCreated)
-			groupChatCreated.clear()
-		}
+		groupChatCreated?.run { handler.groupChatCreated(this) }
 
-		if (supergroupChatCreated.isNotEmpty()) {
-			handler.supergroupChatCreated(supergroupChatCreated)
-			supergroupChatCreated.clear()
-		}
+		supergroupChatCreated?.run { handler.supergroupChatCreated(this) }
 
-		if (channelChatCreated.isNotEmpty()) {
-			handler.channelChatCreated(channelChatCreated)
-			channelChatCreated.clear()
-		}
+		channelChatCreated?.run { handler.channelChatCreated(this) }
 
-		if (messageAutoDeleteTimerChanged.isNotEmpty()) {
-			handler.messageAutoDeleteTimerChanged(messageAutoDeleteTimerChanged)
-			messageAutoDeleteTimerChanged.clear()
-		}
+		messageAutoDeleteTimerChanged?.run { handler.messageAutoDeleteTimerChanged(this) }
 
-		if (migrateToChatId.isNotEmpty()) {
-			handler.migrateToChatId(migrateToChatId)
-			migrateToChatId.clear()
-		}
+		migrateToChatId?.run { handler.migrateToChatId(this) }
 
-		if (migrateFromChatId.isNotEmpty()) {
-			handler.migrateFromChatId(migrateFromChatId)
-			migrateFromChatId.clear()
-		}
+		migrateFromChatId?.run { handler.migrateFromChatId(this) }
 
-		if (pinnedMessage.isNotEmpty()) {
-			handler.pinnedMessage(pinnedMessage)
-			pinnedMessage.clear()
-		}
+		pinnedMessage?.run { handler.pinnedMessage(this) }
 
+		invoice?.run { handler.invoice(this) }
 
-		if (invoice.isNotEmpty()) {
-			handler.invoice(invoice)
-			invoice.clear()
-		}
+		successfulPayment?.run { handler.successfulPayment(this) }
 
-		if (successfulPayment.isNotEmpty()) {
-			handler.successfulPayment(successfulPayment)
-			successfulPayment.clear()
-		}
+		connectedWebsite?.run { handler.connectedWebsite(this) }
 
-		if (connectedWebsite.isNotEmpty()) {
-			handler.connectedWebsite(connectedWebsite)
-			connectedWebsite.clear()
-		}
+		passportData?.run { handler.passportData(this) }
 
-		if (passportData.isNotEmpty()) {
-			handler.passportData(passportData)
-			passportData.clear()
-		}
+		proximityAlertTriggered?.run { handler.proximityAlertTriggered(this) }
 
-		if (proximityAlertTriggered.isNotEmpty()) {
-			handler.proximityAlertTriggered(proximityAlertTriggered)
-			proximityAlertTriggered.clear()
-		}
+		voiceChatScheduled?.run { handler.voiceChatScheduled(this) }
 
-		if (voiceChatScheduled.isNotEmpty()) {
-			handler.voiceChatScheduled(voiceChatScheduled)
-			voiceChatScheduled.clear()
-		}
+		voiceChatStarted?.run { handler.voiceChatStarted(this) }
 
-		if (voiceChatStarted.isNotEmpty()) {
-			handler.voiceChatStarted(voiceChatStarted)
-			voiceChatStarted.clear()
-		}
+		voiceChatEnded?.run { handler.voiceChatEnded(this) }
 
-		if (voiceChatEnded.isNotEmpty()) {
-			handler.voiceChatEnded(voiceChatEnded)
-			voiceChatEnded.clear()
-		}
-
-		if (voiceChatParticipantsInvited.isNotEmpty()) {
-			handler.voiceChatParticipantsInvited(voiceChatParticipantsInvited)
-			voiceChatParticipantsInvited.clear()
-		}
+		voiceChatParticipantsInvited?.run { handler.voiceChatParticipantsInvited(this) }
 	}
+	
+	private fun list() = LinkedList<M>()
 }
